@@ -1,0 +1,1120 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vidyalaya — Student Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ─── Design tokens ───────────────────────────────── */
+:root {
+  --navy:#0D1B3E; --navy-mid:#172B5C; --navy-soft:#1E3A78;
+  --gold:#C9972B; --gold-light:#F0C35A; --gold-pale:#FDF5E0;
+  --cream:#FAFAF7; --white:#FFFFFF;
+  --slate:#4A5568; --slate-light:#718096; --slate-pale:#EDF2F7;
+  --teal:#0F6E56; --teal-light:#1D9E75; --teal-pale:#E1F5EE;
+  --coral:#D85A30; --coral-pale:#FAECE7;
+  --red:#A32D2D; --red-pale:#FCEBEB;
+  --purple-pale:#EEEDFE; --purple:#534AB7;
+  --border:rgba(13,27,62,0.10);
+  --shadow-card:0 2px 20px rgba(13,27,62,0.08);
+  --shadow-hover:0 8px 40px rgba(13,27,62,0.14);
+  --radius:12px; --radius-sm:8px;
+  --font-display:'Playfair Display',serif;
+  --font-body:'DM Sans',sans-serif;
+  --sidebar:256px; --topbar:64px;
+  --ease:0.2s cubic-bezier(0.4,0,0.2,1);
+  /* SAP OData base */
+  --odata-base:/sap/opu/odata/sap/YRS_BIND_STUDENT_V2;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ─── Sidebar ─────────────────────────────────────── */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--navy);display:flex;flex-direction:column;z-index:200;transition:transform var(--ease);overflow:hidden}
+.sidebar::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent,transparent 40px,rgba(201,151,43,.03) 40px,rgba(201,151,43,.03) 80px);pointer-events:none}
+.sb-logo{padding:22px 22px 18px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.logo-wrap{display:flex;align-items:center;gap:11px}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:17px;flex-shrink:0}
+.logo-name{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);line-height:1.2}
+.logo-tag{font-size:9.5px;font-weight:300;color:rgba(255,255,255,.4);letter-spacing:1.6px;text-transform:uppercase;margin-top:1px}
+
+.sb-profile{padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:12px;flex-shrink:0}
+.pname{font-size:12.5px;font-weight:500;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pid{font-size:10.5px;color:rgba(255,255,255,.4);margin-top:1px}
+
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.nav-grp{margin-bottom:2px}
+.nav-grp-label{font-size:9.5px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:10px 22px 3px}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:8px 22px;cursor:pointer;transition:all var(--ease);position:relative;border:none;background:none;width:100%;text-align:left;color:rgba(255,255,255,.58);font-size:13px;font-family:var(--font-body);border-radius:0}
+.nav-btn:hover{color:var(--white);background:rgba(255,255,255,.06)}
+.nav-btn.active{color:var(--gold-light);background:rgba(201,151,43,.12)}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--gold);border-radius:0 3px 3px 0}
+.nav-ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nav-badge{margin-left:auto;background:var(--gold);color:var(--navy);font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:20px;min-width:17px;text-align:center}
+.nav-badge.red{background:var(--red);color:#fff}
+
+.sb-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sb-foot-link{display:flex;align-items:center;gap:9px;color:rgba(255,255,255,.4);font-size:12px;cursor:pointer;transition:color var(--ease);text-decoration:none}
+.sb-foot-link:hover{color:rgba(255,255,255,.7)}
+
+/* ─── Shell & topbar ──────────────────────────────── */
+.shell{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:var(--topbar);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:14px;position:sticky;top:0;z-index:100}
+.topbar-title{font-family:var(--font-display);font-size:17px;font-weight:500;color:var(--navy);flex:1}
+.search-wrap{position:relative;width:240px}
+.search-wrap input{width:100%;padding:7px 14px 7px 36px;border:1px solid var(--border);border-radius:22px;font-size:12.5px;font-family:var(--font-body);background:var(--slate-pale);color:var(--navy);outline:none;transition:all var(--ease)}
+.search-wrap input:focus{border-color:var(--navy-soft);background:var(--white);box-shadow:0 0 0 3px rgba(30,58,120,.07)}
+.search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;fill:none;stroke:var(--slate-light);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.icon-btn{width:34px;height:34px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--ease);position:relative}
+.icon-btn:hover{background:var(--slate-pale)}
+.icon-btn svg{width:17px;height:17px;fill:none;stroke:var(--slate);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--coral);border:1.5px solid var(--white)}
+.hamburger{display:none;width:34px;height:34px;border:none;background:transparent;cursor:pointer;border-radius:7px;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:8px;transition:background var(--ease)}
+.hamburger:hover{background:var(--slate-pale)}
+.hamburger span{display:block;width:16px;height:1.5px;background:var(--navy);border-radius:2px;transition:all var(--ease)}
+
+/* ─── Main content ────────────────────────────────── */
+.content{padding:28px;flex:1}
+.page{display:none}
+.page.active{display:block;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── Utility components ──────────────────────────── */
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:500;font-family:var(--font-body);cursor:pointer;transition:all var(--ease);display:inline-flex;align-items:center;gap:5px;border:none;text-decoration:none}
+.btn-primary{background:var(--navy);color:var(--white)}
+.btn-primary:hover{background:var(--navy-mid)}
+.btn-outline{background:var(--white);color:var(--navy);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--slate-pale)}
+.btn-danger{background:var(--red-pale);color:var(--red);border:1px solid rgba(163,45,45,.2)}
+.btn-danger:hover{background:rgba(163,45,45,.15)}
+.btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:500}
+.badge-success{background:var(--teal-pale);color:var(--teal)}
+.badge-warning{background:var(--gold-pale);color:#854F0B}
+.badge-danger{background:var(--red-pale);color:var(--red)}
+.badge-info{background:#E6F1FB;color:#185FA5}
+.badge-neutral{background:var(--slate-pale);color:var(--slate)}
+.badge-purple{background:var(--purple-pale);color:var(--purple)}
+
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:22px}
+.panel-hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.panel-title{font-family:var(--font-display);font-size:14.5px;font-weight:500;color:var(--navy)}
+.panel-action{font-size:11.5px;color:var(--teal-light);cursor:pointer;font-weight:500;border:none;background:none;font-family:var(--font-body);padding:0;transition:color var(--ease)}
+.panel-action:hover{color:var(--teal)}
+
+.alert{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:var(--radius-sm);margin-bottom:14px;font-size:12.5px}
+.alert-info{background:#E6F1FB;color:#185FA5;border:1px solid #B5D4F4}
+.alert-warn{background:var(--gold-pale);color:#854F0B;border:1px solid #FAC775}
+.alert-success{background:var(--teal-pale);color:var(--teal);border:1px solid #9FE1CB}
+.alert-danger{background:var(--red-pale);color:var(--red);border:1px solid #F09595}
+
+.loading-box{display:flex;align-items:center;justify-content:center;min-height:200px;flex-direction:column;gap:11px}
+.spinner{width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:12.5px;color:var(--slate-light)}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--slate-light)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+.empty-title{font-size:14px;font-weight:500;color:var(--slate);margin-bottom:5px}
+.empty-desc{font-size:12.5px}
+
+.err-banner{background:var(--red-pale);border:1px solid #F09595;border-radius:var(--radius-sm);padding:11px 14px;font-size:12.5px;color:var(--red);display:flex;gap:8px;align-items:flex-start;margin-bottom:14px}
+
+/* ─── Data table ──────────────────────────────────── */
+.tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tbl-wrap table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;font-size:10.5px;font-weight:500;color:var(--slate-light);text-align:left;background:var(--slate-pale);border-bottom:1px solid var(--border);letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+td{padding:12px 14px;font-size:12.5px;color:var(--navy);border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background var(--ease)}
+tbody tr:hover{background:rgba(13,27,62,.02)}
+.row-action{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--teal-light);cursor:pointer;border:none;background:none;font-family:var(--font-body);padding:3px 7px;border-radius:5px;transition:all var(--ease)}
+.row-action:hover{background:var(--teal-pale);color:var(--teal)}
+.row-action.red{color:var(--red)}
+.row-action.red:hover{background:var(--red-pale)}
+
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--border)}
+.pag-info{font-size:11.5px;color:var(--slate-light)}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11.5px;color:var(--navy);background:var(--white);transition:all var(--ease);font-family:var(--font-body)}
+.pag-btn:hover{background:var(--slate-pale)}
+.pag-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.pag-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ─── Toolbar ─────────────────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.tb-search{position:relative;flex:1;min-width:180px}
+.tb-search input{width:100%;padding:8px 14px 8px 35px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:var(--font-body);background:var(--white);color:var(--navy);outline:none;transition:all var(--ease)}
+.tb-search input:focus{border-color:var(--navy-soft);box-shadow:0 0 0 3px rgba(30,58,120,.07)}
+.tb-search .search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%)}
+.filter-sel{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:var(--font-body);background:var(--white);color:var(--navy);cursor:pointer;outline:none;transition:border-color var(--ease)}
+.filter-sel:focus{border-color:var(--navy-soft)}
+
+/* ─── Stats grid ──────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all var(--ease)}
+.stat-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+.stat-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.stat-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.si-blue{background:#E6F1FB;color:#185FA5}
+.si-green{background:var(--teal-pale);color:var(--teal)}
+.si-amber{background:var(--gold-pale);color:var(--gold)}
+.si-red{background:var(--red-pale);color:var(--red)}
+.si-purple{background:var(--purple-pale);color:var(--purple)}
+.stat-val{font-size:26px;font-weight:500;color:var(--navy);line-height:1;margin-bottom:3px;font-family:var(--font-display)}
+.stat-label{font-size:11.5px;color:var(--slate-light)}
+
+/* ─── Welcome banner ──────────────────────────────── */
+.welcome{background:var(--navy);border-radius:var(--radius);padding:26px 28px;position:relative;overflow:hidden;margin-bottom:22px}
+.welcome::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(201,151,43,.10)}
+.welcome::after{content:'';position:absolute;bottom:-30px;right:100px;width:100px;height:100px;border-radius:50%;background:rgba(29,158,117,.08)}
+.w-eye{font-size:10.5px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.w-head{font-family:var(--font-display);font-size:23px;font-weight:700;color:var(--white);line-height:1.25;margin-bottom:6px}
+.w-sub{font-size:13px;color:rgba(255,255,255,.52);max-width:460px}
+.w-pills{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap}
+.w-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);padding:5px 12px;border-radius:20px;font-size:11.5px;color:rgba(255,255,255,.6)}
+.w-pill strong{color:var(--white);font-weight:500}
+
+/* ─── Grid layouts ────────────────────────────────── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+
+/* ─── Profile page ────────────────────────────────── */
+.prof-hero{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:22px}
+.prof-banner{height:110px;background:linear-gradient(120deg,var(--navy) 0%,var(--navy-soft) 60%,var(--teal) 100%);position:relative}
+.prof-body{padding:0 26px 22px}
+.prof-av-wrap{margin-top:-28px;margin-bottom:10px}
+.prof-av{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));border:3px solid var(--white);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:600;font-family:var(--font-display)}
+.prof-name-row{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.prof-fullname{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--navy)}
+.prof-sub{font-size:12.5px;color:var(--slate-light);margin-top:2px}
+.fields-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.field-box{background:var(--cream);border-radius:var(--radius-sm);padding:10px 12px}
+.field-lbl{font-size:10px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
+.field-val{font-size:13px;color:var(--navy);font-weight:500}
+.bool-yes{color:var(--teal);font-weight:600}
+.bool-no{color:var(--slate-light)}
+
+/* ─── Tabs ────────────────────────────────────────── */
+.tabs{display:flex;gap:1px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 16px;font-size:12.5px;font-weight:500;color:var(--slate);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all var(--ease);background:none;border-left:none;border-right:none;border-top:none;font-family:var(--font-body)}
+.tab:hover{color:var(--navy)}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ─── Academic results table ──────────────────────── */
+.acad-code{font-family:monospace;font-size:11.5px;background:var(--slate-pale);padding:2px 6px;border-radius:4px;color:var(--slate)}
+.result-pass{color:var(--teal);font-weight:600}
+.result-fail{color:var(--red);font-weight:600}
+.result-pending{color:var(--gold);font-weight:500}
+
+/* ─── Action buttons for SAP actions ─────────────── */
+.sap-action-btn{padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;font-family:var(--font-body);cursor:pointer;transition:all var(--ease);display:inline-flex;align-items:center;gap:5px;border:1px solid;margin-right:6px}
+.action-admit{background:var(--teal-pale);color:var(--teal);border-color:rgba(15,110,86,.3)}
+.action-admit:hover{background:rgba(29,158,117,.2)}
+.action-deadmit{background:var(--red-pale);color:var(--red);border-color:rgba(163,45,45,.3)}
+.action-deadmit:hover{background:rgba(163,45,45,.15)}
+.action-btn-wrap{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+
+/* ─── Sidebar overlay mobile ──────────────────────── */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
+.sb-overlay.open{display:block}
+
+/* ─── Responsive ──────────────────────────────────── */
+@media(max-width:1024px){:root{--sidebar:220px}.grid2{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .shell{margin-left:0}
+  .hamburger{display:flex}
+  .search-wrap{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .content{padding:18px 14px}
+  .topbar{padding:0 14px}
+  .grid3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+@media print{.sidebar,.topbar{display:none}.shell{margin-left:0}.content{padding:0}}
+</style>
+</head>
+<body>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+<!-- ─── Sidebar ──────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-wrap">
+      <div class="logo-icon">V</div>
+      <div>
+        <div class="logo-name">Vidyalaya</div>
+        <div class="logo-tag">Student Portal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-profile">
+    <div class="avatar" id="sbAvatar">ST</div>
+    <div>
+      <div class="pname" id="sbName">Loading…</div>
+      <div class="pid" id="sbId">Connecting to SAP…</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-grp">
+      <div class="nav-grp-label">Main</div>
+      <button class="nav-btn active" onclick="nav('dashboard',this)">
+        <svg class="nav-ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+    </div>
+    <div class="nav-grp">
+      <div class="nav-grp-label">Students</div>
+      <button class="nav-btn" onclick="nav('students',this)">
+        <svg class="nav-ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        All Students
+        <span class="nav-badge" id="navCount">—</span>
+      </button>
+      <button class="nav-btn" onclick="editingId=null;nav('newstudent',this)">
+        <svg class="nav-ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        Add Student
+      </button>
+    </div>
+    <div class="nav-grp">
+      <div class="nav-grp-label">Details</div>
+      <button class="nav-btn" id="profileNavBtn" onclick="nav('profile',this)" style="display:none">
+        <svg class="nav-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Student Profile
+      </button>
+      <button class="nav-btn" id="academicNavBtn" onclick="nav('academic',this)" style="display:none">
+        <svg class="nav-ic" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Academic Results
+      </button>
+    </div>
+  </nav>
+
+  <div class="sb-footer">
+    <a class="sb-foot-link" href="#">
+      <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      SAP OData: 
+    </a>
+  </div>
+</aside>
+
+<!-- ─── Shell ─────────────────────────────────────── -->
+<div class="shell">
+  <header class="topbar">
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="search-wrap">
+      <svg class="search-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search students…" id="globalSearch" oninput="onGlobalSearch(this.value)">
+    </div>
+    <div class="tb-actions">
+      <button class="icon-btn" onclick="refreshAll()" title="Refresh from SAP">
+        <svg viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+      <button class="icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ═══ DASHBOARD ════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="welcome">
+        <div class="w-eye">SAP RAP Backend Connected</div>
+        <div class="w-head">Student Management Portal</div>
+        <div class="w-sub">Live data from <strong style="color:rgba(255,255,255,.85)"></strong> via OData v2. Manage students, academic results, admissions and more.</div>
+        <div class="w-pills">
+          <div class="w-pill">Entity Set <strong>Student</strong></div>
+          <div class="w-pill">Navigation <strong>to_Academic</strong></div>
+          <div class="w-pill">Actions <strong>setAdmitted / deSet</strong></div>
+          <div class="w-pill" id="dateChip"><strong id="todayStr">—</strong></div>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="dashStats">
+        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-blue"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="stat-val" id="dsTotal">—</div><div class="stat-label">Total Students</div></div>
+        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-green"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg></div></div><div class="stat-val" id="dsAdmitted">—</div><div class="stat-label">Admitted</div></div>
+        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div><div class="stat-val" id="dsScholar">—</div><div class="stat-label">Scholarships</div></div>
+        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-purple"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div></div><div class="stat-val" id="dsCourses">—</div><div class="stat-label">Distinct Courses</div></div>
+        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-red"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="stat-val" id="dsBonus">—</div><div class="stat-label">Total Bonus Pool</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-hdr"><span class="panel-title">Recent Students</span><button class="panel-action" onclick="nav('students',document.querySelector('.nav-btn:nth-child(2)'))">View all →</button></div>
+          <div id="recentStudents"><div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching from SAP…</div></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><span class="panel-title">Status Breakdown</span></div>
+          <div id="statusBreakdown" style="padding:16px"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">OData Endpoint Info</span>
+          <span style="font-size:11px;color:var(--slate-light);font-family:monospace">/sap/opu/odata/sap/YRS_BIND_STUDENT_V2/</span>
+        </div>
+        <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+          <div class="field-box"><div class="field-lbl">Entity Set</div><div class="field-val" style="font-family:monospace;font-size:12px">Student</div></div>
+          <div class="field-box"><div class="field-lbl">Sub-Entity</div><div class="field-val" style="font-family:monospace;font-size:12px">AcademicRes (to_Academic)</div></div>
+          <div class="field-box"><div class="field-lbl">Key Field</div><div class="field-val" style="font-family:monospace;font-size:12px">Id (Edm.Guid)</div></div>
+          <div class="field-box"><div class="field-lbl">Actions</div><div class="field-val" style="font-family:monospace;font-size:12px">setAdmitted / deSet</div></div>
+          <div class="field-box"><div class="field-lbl">OData Version</div><div class="field-val" style="font-family:monospace;font-size:12px">v2 (JSON)</div></div>
+          <div class="field-box"><div class="field-lbl">Namespace</div><div class="field-val" style="font-family:monospace;font-size:12px"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STUDENTS LIST ════════════════════════════ -->
+    <div class="page" id="page-students">
+      <div class="toolbar">
+        <div class="tb-search">
+          <svg class="search-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search by First Name, Last Name, Course…" id="stuSearch" oninput="filterStudents()">
+        </div>
+        <select class="filter-sel" id="stuStatus" onchange="filterStudents()">
+          <option value="">All Status</option>
+        </select>
+        <select class="filter-sel" id="stuCourse" onchange="filterStudents()">
+          <option value="">All Courses</option>
+        </select>
+        <select class="filter-sel" id="stuGender" onchange="filterStudents()">
+          <option value="">All Gender</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+        <button class="btn btn-primary" onclick="loadStudents(true)">
+          <svg viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh 
+        </button>
+        <button class="btn btn-outline" onclick="editingId=null;nav('newstudent')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Student
+        </button>
+      </div>
+      <div id="stuError"></div>
+      <div id="stuContainer"><div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching Student entity from SAP OData…</div></div></div>
+    </div>
+
+    <!-- ═══ NEW / EDIT STUDENT ════════════════════════ -->
+    <div class="page" id="page-newstudent">
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title" id="formTitle">Create New Student</span>
+          <button class="btn btn-outline" onclick="editingId=null;nav('students')">← Back</button>
+        </div>
+        <div style="padding:20px">
+          <div id="formError"></div>
+          <div id="formSuccess"></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px">
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">First Name *</label>
+              <input type="text" id="fFirstname" class="form-input" placeholder="e.g. Rahul" maxlength="100">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Last Name *</label>
+              <input type="text" id="fLastname" class="form-input" placeholder="e.g. Sharma" maxlength="100">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Age</label>
+              <input type="number" id="fAge" class="form-input" placeholder="e.g. 20" maxlength="4">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Date of Birth</label>
+              <input type="date" id="fDob" class="form-input">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Gender</label>
+              <select id="fGender" class="form-input">
+                <option value="">— Select —</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Course *</label>
+              <input type="text" id="fCourse" class="form-input" placeholder="e.g. BSC" maxlength="50">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Course Duration</label>
+              <input type="text" id="fCourseduration" class="form-input" placeholder="e.g. 0004" maxlength="4">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Status</label>
+              <input type="text" id="fStatus" class="form-input" placeholder="e.g. Active" maxlength="20">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding-top:22px">
+              <input type="checkbox" id="fScholarShip" style="width:16px;height:16px;cursor:pointer">
+              <label for="fScholarShip" style="font-size:13px;cursor:pointer;color:var(--navy)">Scholarship awarded</label>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" id="saveBtn" onclick="saveStudent()">
+              <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+              <span id="saveBtnTxt">Create in SAP</span>
+            </button>
+            <button class="btn btn-outline" onclick="clearForm()">Clear</button>
+            <button class="btn btn-outline" onclick="editingId=null;nav('students')">Cancel</button>
+          </div>
+          <input type="hidden" id="fEditId">
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STUDENT PROFILE ══════════════════════════ -->
+    <div class="page" id="page-profile">
+      <div class="prof-hero" id="profHero">
+        <div class="prof-banner"></div>
+        <div class="prof-body">
+          <div class="prof-av-wrap"><div class="prof-av" id="profAv">—</div></div>
+          <div class="prof-name-row">
+            <div>
+              <div class="prof-fullname" id="profName">—</div>
+              <div class="prof-sub" id="profSub">—</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+              <span class="badge" id="profStatusBadge">—</span>
+              <button class="btn btn-outline" style="font-size:11.5px;padding:6px 12px" onclick="editCurrentStudent()">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+              <button class="btn btn-outline" style="font-size:11.5px;padding:6px 12px;color:var(--red)" onclick="deleteCurrentStudent()">
+                <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Delete
+              </button>
+            </div>
+          </div>
+          <div class="fields-grid" id="profFields"></div>
+        </div>
+        <!-- SAP Actions -->
+        <div class="action-btn-wrap">
+          <button class="sap-action-btn action-admit" onclick="sapAction('setAdmitted')">
+            <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+            Set Admitted
+          </button>
+          <button class="sap-action-btn action-deadmit" onclick="sapAction('deSet')">
+            <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Deset Admit
+          </button>
+          <span style="font-size:11px;color:var(--slate-light);align-self:center">SAP RAP Actions via FunctionImport</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="showTab(this,'tab-info')">Student Info</button>
+        <button class="tab" onclick="showTab(this,'tab-academic')">Academic Results (to_Academic)</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-info">
+        <div class="panel" id="profFullFields"></div>
+      </div>
+      <div class="tab-panel" id="tab-academic">
+        <div id="acadContainer"><div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching AcademicRes via to_Academic navigation…</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ ACADEMIC DETAIL ═══════════════════════════ -->
+    <div class="page" id="page-academic">
+      <button class="btn btn-outline" style="margin-bottom:16px" onclick="backToProfile()">← Back to Student</button>
+      <div class="panel">
+        <div class="panel-hdr"><span class="panel-title">Academic Results — <span id="acadStudName">—</span></span></div>
+        <div id="acadDetail"><div class="loading-box"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<style>
+.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font-body);color:var(--navy);background:var(--white);outline:none;transition:all var(--ease)}
+.form-input:focus{border-color:var(--navy-soft);box-shadow:0 0 0 3px rgba(30,58,120,.07)}
+</style>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONFIG — update BASE_URL if running behind SAP proxy
+══════════════════════════════════════════════════════ */
+const BASE = '/sap/opu/odata/sap/YRS_BIND_STUDENT_V2';
+const HEADERS_READ  = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+const HEADERS_WRITE = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+
+/* State */
+let allStudents = [];
+let currentStudent = null;
+let csrfToken = '';
+let editingId = null;
+
+/* ── Navigation ──────────────────────────────────── */
+const PAGE_TITLES = {
+  dashboard:'Dashboard', students:'All Students',
+  newstudent:'New Student', profile:'Student Profile',
+  academic:'Academic Results'
+};
+function nav(pageId, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + pageId);
+  if (pg) pg.classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('topbarTitle').textContent = PAGE_TITLES[pageId] || pageId;
+  closeSidebar();
+  if (pageId === 'students' && allStudents.length === 0) loadStudents();
+  if (pageId === 'newstudent' && !editingId) { resetForm(); }
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('open');
+}
+function showTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+  if (tabId === 'tab-academic' && currentStudent) loadAcademicResults(currentStudent.Id);
+}
+function backToProfile() { nav('profile'); }
+
+/* ── Date ────────────────────────────────────────── */
+document.getElementById('todayStr').textContent =
+  new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+/* ── CSRF Token fetch ────────────────────────────── */
+async function fetchCsrfToken() {
+  try {
+    const r = await fetch(BASE + '/Student?$top=0', {
+      headers: { 'X-CSRF-Token': 'Fetch', 'Accept': 'application/json' }
+    });
+    csrfToken = r.headers.get('x-csrf-token') || '';
+  } catch(e) { csrfToken = ''; }
+}
+
+/* ── Parse OData JSON ────────────────────────────── */
+function parseResults(data) {
+  if (!data) return [];
+  if (data.d && Array.isArray(data.d.results)) return data.d.results;
+  if (data.d && data.d.results) return [data.d.results];
+  if (data.d) return [data.d];
+  return [];
+}
+function parseODataDate(v) {
+  if (!v) return '—';
+  const m = String(v).match(/\/Date\((\d+)(?:[+-]\d+)?\)\//);
+  if (m) return new Date(+m[1]).toLocaleDateString('en-IN');
+  return v;
+}
+function parseGuid(id) {
+  // OData v2 Guid key format: guid'...'
+  return `guid'${id}'`;
+}
+
+/* ── Load ALL Students ───────────────────────────── */
+async function loadStudents(force = false) {
+  if (allStudents.length > 0 && !force) { renderStudentTable(allStudents); return; }
+  setContainer('stuContainer', 'loading', 'Fetching Student entity from SAP OData…');
+  clearEl('stuError');
+  try {
+    const r = await fetch(`${BASE}/Student?$format=json&$top=200&$orderby=Firstname`, { headers: HEADERS_READ });
+    if (!r.ok) throw new Error(`SAP returned ${r.status}: ${r.statusText}`);
+    const data = await r.json();
+    allStudents = parseResults(data);
+    updateDashStats();
+    populateFilters();
+    renderStudentTable(allStudents);
+    updateSidebar(allStudents);
+  } catch(e) {
+    showErr('stuError', e.message);
+    setContainer('stuContainer', 'empty', 'Could not connect to SAP backend.');
+    /* Dev: load mock data so UI is usable */
+    allStudents = getMockStudents();
+    updateDashStats();
+    populateFilters();
+    renderStudentTable(allStudents);
+    updateSidebar(allStudents);
+  }
+}
+
+/* ── Mock data for dev/offline ───────────────────── */
+function getMockStudents() {
+  return [
+    {Id:'00000000-0001-0000-0000-000000000001',Firstname:'Rahul',Lastname:'Sharma',Age:'21',Course:'BSC',Courseduration:'0003',Status:'Admitted',Gender:'M',genderDesc:'Male',ScholarShip:true,Dob:'/Date(956534400000)/',BonusAmount:5000},
+    {Id:'00000000-0002-0000-0000-000000000002',Firstname:'Priya',Lastname:'Mehta',Age:'20',Course:'BCOM',Courseduration:'0003',Status:'Active',Gender:'F',genderDesc:'Female',ScholarShip:false,Dob:'/Date(990748800000)/',BonusAmount:0},
+    {Id:'00000000-0003-0000-0000-000000000003',Firstname:'Rohan',Lastname:'Das',Age:'22',Course:'BBA',Courseduration:'0003',Status:'Admitted',Gender:'M',genderDesc:'Male',ScholarShip:true,Dob:'/Date(924652800000)/',BonusAmount:7500},
+    {Id:'00000000-0004-0000-0000-000000000004',Firstname:'Sneha',Lastname:'Patel',Age:'19',Course:'BSC',Courseduration:'0003',Status:'Active',Gender:'F',genderDesc:'Female',ScholarShip:false,Dob:'/Date(1025136000000)/',BonusAmount:0},
+    {Id:'00000000-0005-0000-0000-000000000005',Firstname:'Ananya',Lastname:'Joshi',Age:'23',Course:'MCA',Courseduration:'0002',Status:'Admitted',Gender:'F',genderDesc:'Female',ScholarShip:true,Dob:'/Date(893980800000)/',BonusAmount:10000},
+  ];
+}
+
+/* ── Update sidebar & dashboard ──────────────────── */
+function updateSidebar(arr) {
+  document.getElementById('navCount').textContent = arr.length;
+  if (arr.length > 0) {
+    const s = arr[0];
+    document.getElementById('sbAvatar').textContent = initials(s.Firstname, s.Lastname);
+    document.getElementById('sbName').textContent = `${s.Firstname} ${s.Lastname}`;
+    document.getElementById('sbId').textContent = s.Id ? s.Id.slice(0,8)+'…' : '—';
+  }
+}
+
+function updateDashStats() {
+  const total = allStudents.length;
+  const admitted = allStudents.filter(s => (s.Status||'').toLowerCase().includes('admit')).length;
+  const scholar = allStudents.filter(s => s.ScholarShip === true || s.ScholarShip === 'true').length;
+  const courses = [...new Set(allStudents.map(s => s.Course).filter(Boolean))].length;
+  const bonus = allStudents.reduce((a,s) => a + (parseInt(s.BonusAmount)||0), 0);
+  setText('dsTotal', total);
+  setText('dsAdmitted', admitted);
+  setText('dsScholar', scholar);
+  setText('dsCourses', courses);
+  setText('dsBonus', bonus ? '₹'+bonus.toLocaleString('en-IN') : '0');
+
+  // Recent students
+  const recent = allStudents.slice(0,5);
+  const recentHtml = recent.length ? `<div style="padding:0">${recent.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--ease)" onclick="openProfile('${s.Id}')" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">
+      <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor(s.Firstname)};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;flex-shrink:0">${initials(s.Firstname,s.Lastname)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;font-weight:500;color:var(--navy)">${s.Firstname} ${s.Lastname}</div>
+        <div style="font-size:11px;color:var(--slate-light)">${s.Course||'—'} · Age ${s.Age||'—'}</div>
+      </div>
+      <span class="badge ${statusBadge(s.Status)}">${s.Status||'—'}</span>
+    </div>`).join('')}</div>` : '<div class="empty-state"><div class="empty-title">No students loaded</div></div>';
+  document.getElementById('recentStudents').innerHTML = recentHtml;
+
+  // Status breakdown
+  const statusMap = {};
+  allStudents.forEach(s => { const k=s.Status||'Unknown'; statusMap[k]=(statusMap[k]||0)+1; });
+  const colors = ['var(--teal)','#185FA5','var(--gold)','var(--coral)','var(--purple)','var(--red)'];
+  let i=0;
+  const breakdownHtml = Object.entries(statusMap).map(([k,v])=>{
+    const pct = Math.round((v/total)*100);
+    const c = colors[i++%colors.length];
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+        <span style="color:var(--navy);font-weight:500">${k}</span>
+        <span style="color:var(--slate-light)">${v} (${pct}%)</span>
+      </div>
+      <div style="height:6px;background:var(--slate-pale);border-radius:10px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${c};border-radius:10px;transition:width .6s ease"></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('statusBreakdown').innerHTML = breakdownHtml || '<div class="empty-state"><div class="empty-title">No data</div></div>';
+}
+
+/* ── Populate filter dropdowns ───────────────────── */
+function populateFilters() {
+  const statuses = [...new Set(allStudents.map(s=>s.Status).filter(Boolean))];
+  const sel = document.getElementById('stuStatus');
+  sel.innerHTML = '<option value="">All Status</option>' + statuses.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const courses = [...new Set(allStudents.map(s=>s.Course).filter(Boolean))];
+  const csel = document.getElementById('stuCourse');
+  csel.innerHTML = '<option value="">All Courses</option>' + courses.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+/* ── Render Student Table ────────────────────────── */
+let currentPage = 1;
+const PAGE_SIZE = 10;
+
+function filterStudents() {
+  const q = (document.getElementById('stuSearch').value||'').toLowerCase();
+  const status = document.getElementById('stuStatus').value;
+  const course = document.getElementById('stuCourse').value;
+  const gender = document.getElementById('stuGender').value;
+  const filtered = allStudents.filter(s =>
+    (!q || [s.Firstname,s.Lastname,s.Course,s.Status].join(' ').toLowerCase().includes(q)) &&
+    (!status || s.Status === status) &&
+    (!course || s.Course === course) &&
+    (!gender || s.Gender === gender)
+  );
+  currentPage = 1;
+  renderStudentTable(filtered);
+}
+function onGlobalSearch(v) {
+  if (document.getElementById('page-students').classList.contains('active')) {
+    document.getElementById('stuSearch').value = v;
+    filterStudents();
+  }
+}
+
+function renderStudentTable(data) {
+  const total = data.length;
+  const start = (currentPage-1)*PAGE_SIZE;
+  const pageData = data.slice(start, start+PAGE_SIZE);
+  const pages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+
+  if (!pageData.length) {
+    document.getElementById('stuContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No students found</div><div class="empty-desc">Try adjusting your filters or refresh from SAP.</div></div>`;
+    return;
+  }
+
+  /* OData-exact field names from StudentType */
+  document.getElementById('stuContainer').innerHTML = `
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Student</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Course</th>
+          <th>Duration</th>
+          <th>DoB</th>
+          <th>Scholarship</th>
+          <th>Bonus Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>${pageData.map(s=>`<tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor(s.Firstname)};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:600;flex-shrink:0">${initials(s.Firstname,s.Lastname)}</div>
+              <div>
+                <div style="font-weight:500;font-size:13px">${s.Firstname||''} ${s.Lastname||''}</div>
+                <div style="font-size:10.5px;color:var(--slate-light);font-family:monospace">${(s.Id||'').slice(0,8)}…</div>
+              </div>
+            </div>
+          </td>
+          <td>${s.Age||'—'}</td>
+          <td>${s.genderDesc||genderLabel(s.Gender)||'—'}</td>
+          <td><span class="acad-code">${s.Course||'—'}</span></td>
+          <td>${s.Courseduration||'—'} yrs</td>
+          <td style="white-space:nowrap">${parseODataDate(s.Dob)}</td>
+          <td>${s.ScholarShip===true||s.ScholarShip==='true'?'<span class="badge badge-success">Yes</span>':'<span class="badge badge-neutral">No</span>'}</td>
+          <td>${s.BonusAmount!=null?'₹'+Number(s.BonusAmount).toLocaleString('en-IN'):'—'}</td>
+          <td><span class="badge ${statusBadge(s.Status)}">${s.Status||'—'}</span></td>
+          <td style="white-space:nowrap">
+            <button class="row-action" onclick="openProfile('${s.Id}')">View</button>
+            <button class="row-action" onclick="openEdit('${s.Id}')">Edit</button>
+            <button class="row-action red" onclick="deleteStudent('${s.Id}','${s.Firstname} ${s.Lastname}')">Del</button>
+          </td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <div class="pagination">
+        <div class="pag-info">Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total} students</div>
+        <div class="pag-btns">
+          <button class="pag-btn" onclick="changePage(-1)" ${currentPage===1?'disabled':''}>‹</button>
+          ${Array.from({length:pages},(_,i)=>`<button class="pag-btn ${i+1===currentPage?'active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('')}
+          <button class="pag-btn" onclick="changePage(1)" ${currentPage===pages?'disabled':''}>›</button>
+        </div>
+      </div>
+    </div>`;
+}
+function changePage(d) { currentPage = Math.max(1,currentPage+d); filterStudents(); }
+function goPage(p) { currentPage=p; filterStudents(); }
+
+/* ── Open Student Profile ────────────────────────── */
+function openProfile(id) {
+  const s = allStudents.find(x => x.Id===id);
+  if (!s) return;
+  currentStudent = s;
+  fillProfilePage(s);
+  document.getElementById('profileNavBtn').style.display='flex';
+  document.getElementById('academicNavBtn').style.display='flex';
+  // reset tab
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('.tab-panel').forEach((p,i)=>p.classList.toggle('active',i===0));
+  document.getElementById('acadContainer').innerHTML = '<div class="loading-box"><div class="spinner"></div><div class="loading-txt">Click "Academic Results" tab to load…</div></div>';
+  nav('profile', document.getElementById('profileNavBtn'));
+}
+
+function fillProfilePage(s) {
+  const name = `${s.Firstname||''} ${s.Lastname||''}`.trim();
+  document.getElementById('profAv').textContent = initials(s.Firstname,s.Lastname);
+  document.getElementById('profAv').style.background = avatarColor(s.Firstname);
+  document.getElementById('profName').textContent = name || '—';
+  document.getElementById('profSub').textContent = `Course: ${s.Course||'—'} · Duration: ${s.Courseduration||'—'} yrs · Age: ${s.Age||'—'}`;
+  const badge = document.getElementById('profStatusBadge');
+  badge.textContent = s.Status||'—';
+  badge.className = 'badge ' + statusBadge(s.Status);
+  document.getElementById('profFields').innerHTML = [
+    ['First Name','Firstname'],['Last Name','Lastname'],
+    ['Age','Age'],['Gender',null],['Date of Birth','Dob',true],
+    ['Course','Course'],['Course Duration','Courseduration'],
+    ['Status','Status'],['Scholarship',null,false,'bool'],
+    ['Bonus Amount',null,false,'bonus'],['Student ID','Id',false,'id']
+  ].map(([lbl,key,isDate,special])=>{
+    let val;
+    if (special==='bool') val = s.ScholarShip===true||s.ScholarShip==='true' ? '<span class="bool-yes">✓ Yes</span>' : '<span class="bool-no">No</span>';
+    else if (special==='bonus') val = s.BonusAmount!=null ? '₹'+Number(s.BonusAmount).toLocaleString('en-IN') : '—';
+    else if (special==='id') val = `<span style="font-family:monospace;font-size:11px">${s.Id||'—'}</span>`;
+    else if (key==='Gender') val = s.genderDesc||genderLabel(s.Gender)||'—';
+    else if (isDate) val = parseODataDate(s[key]);
+    else val = s[key]||'—';
+    return `<div class="field-box"><div class="field-lbl">${lbl}</div><div class="field-val">${val}</div></div>`;
+  }).join('');
+}
+
+/* ── Load Academic Results (to_Academic navigation) ── */
+async function loadAcademicResults(studentId) {
+  document.getElementById('acadContainer').innerHTML = '<div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching AcademicRes via to_Academic…</div></div>';
+  try {
+    const r = await fetch(`${BASE}/Student(${parseGuid(studentId)})/to_Academic?$format=json&$orderby=Semester`, { headers: HEADERS_READ });
+    if (!r.ok) throw new Error(`SAP ${r.status}`);
+    const data = await r.json();
+    const results = parseResults(data);
+    renderAcademicTable(results, 'acadContainer');
+  } catch(e) {
+    // Fallback mock
+    renderAcademicTable(getMockAcademic(), 'acadContainer');
+  }
+}
+function getMockAcademic() {
+  return [
+    {Id:'00000000-0001-0000-0000-000000000001',Course:'A',Semester:'0001',course_desc:'Mathematics',semester_desc:'Semester 1',Semresult:'P',semres_desc:'Pass'},
+    {Id:'00000000-0001-0000-0000-000000000001',Course:'B',Semester:'0001',course_desc:'Physics',semester_desc:'Semester 1',Semresult:'P',semres_desc:'Pass'},
+    {Id:'00000000-0001-0000-0000-000000000001',Course:'C',Semester:'0002',course_desc:'Chemistry',semester_desc:'Semester 2',Semresult:'F',semres_desc:'Fail'},
+    {Id:'00000000-0001-0000-0000-000000000001',Course:'A',Semester:'0002',course_desc:'Mathematics',semester_desc:'Semester 2',Semresult:'P',semres_desc:'Pass'},
+  ];
+}
+function renderAcademicTable(results, containerId) {
+  const el = document.getElementById(containerId);
+  if (!results.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No academic records found</div><div class="empty-desc">No results in AcademicRes for this student.</div></div>'; return; }
+  el.innerHTML = `<div class="tbl-wrap"><table>
+    <thead><tr>
+      <th>Semester</th><th>Sem. Description</th>
+      <th>Course Code</th><th>Course Description</th>
+      <th>Result Code</th><th>Result</th>
+    </tr></thead>
+    <tbody>${results.map(r=>`<tr>
+      <td><span class="acad-code">${r.Semester||'—'}</span></td>
+      <td>${r.semester_desc||'—'}</td>
+      <td><span class="acad-code">${r.Course||'—'}</span></td>
+      <td>${r.course_desc||'—'}</td>
+      <td><span class="acad-code">${r.Semresult||'—'}</span></td>
+      <td><span class="${resultClass(r.Semresult,r.semres_desc)}">${r.semres_desc||r.Semresult||'—'}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function resultClass(code, desc) {
+  const v = (desc||code||'').toLowerCase();
+  if (v.includes('pass')||v==='p') return 'result-pass';
+  if (v.includes('fail')||v==='f') return 'result-fail';
+  return 'result-pending';
+}
+
+/* ── SAP Actions (FunctionImport) ───────────────── */
+async function sapAction(action) {
+  if (!currentStudent) return;
+  const label = action==='setAdmitted' ? 'Set Admitted' : 'Deset Admit';
+  if (!confirm(`Trigger SAP action "${label}" for ${currentStudent.Firstname} ${currentStudent.Lastname}?`)) return;
+  await fetchCsrfToken();
+  try {
+    const r = await fetch(`${BASE}/${action}?Id=${parseGuid(currentStudent.Id)}`, {
+      method:'POST',
+      headers:{ ...HEADERS_WRITE, 'X-CSRF-Token': csrfToken }
+    });
+    if (!r.ok) throw new Error(`SAP ${r.status}`);
+    const data = await r.json();
+    const updated = data.d || {};
+    if (updated.Status) {
+      currentStudent.Status = updated.Status;
+      const idx = allStudents.findIndex(s=>s.Id===currentStudent.Id);
+      if (idx>=0) allStudents[idx] = {...allStudents[idx], ...updated};
+      fillProfilePage(currentStudent);
+      alert(`✓ Action "${label}" completed. Status: ${updated.Status}`);
+    } else {
+      alert(`✓ Action "${label}" sent to SAP successfully.`);
+    }
+  } catch(e) {
+    alert(`⚠ SAP action failed: ${e.message}\n\nMake sure the Fiori app is running on an SAP BTP trial and you are authenticated.`);
+  }
+}
+
+/* ── Create / Edit Student (PATCH / POST) ────────── */
+function resetForm() {
+  ['Firstname','Lastname','Age','Dob','Gender','Course','Courseduration','Status','ScholarShip'].forEach(f=>{
+    const el = document.getElementById('f'+f);
+    if (!el) return;
+    if (el.type==='checkbox') el.checked=false;
+    else el.value='';
+  });
+  document.getElementById('fEditId').value='';
+  document.getElementById('formTitle').textContent='Create New Student';
+  document.getElementById('saveBtnTxt').textContent='Create in SAP';
+  clearEl('formError'); clearEl('formSuccess');
+}
+function clearForm() { editingId=null; resetForm(); }
+
+function openEdit(id) {
+  const s = allStudents.find(x=>x.Id===id);
+  if (!s) return;
+  editingId = id;
+  document.getElementById('fFirstname').value = s.Firstname||'';
+  document.getElementById('fLastname').value = s.Lastname||'';
+  document.getElementById('fAge').value = s.Age||'';
+  document.getElementById('fGender').value = s.Gender||'';
+  document.getElementById('fCourse').value = s.Course||'';
+  document.getElementById('fCourseduration').value = s.Courseduration||'';
+  document.getElementById('fStatus').value = s.Status||'';
+  document.getElementById('fScholarShip').checked = s.ScholarShip===true||s.ScholarShip==='true';
+  if (s.Dob) {
+    const m = String(s.Dob).match(/\/Date\((\d+)/);
+    if (m) document.getElementById('fDob').value = new Date(+m[1]).toISOString().slice(0,10);
+  }
+  document.getElementById('fEditId').value = id;
+  document.getElementById('formTitle').textContent='Edit Student';
+  document.getElementById('saveBtnTxt').textContent='Update in SAP';
+  clearEl('formError'); clearEl('formSuccess');
+  nav('newstudent');
+}
+function editCurrentStudent() { if (currentStudent) openEdit(currentStudent.Id); }
+
+async function saveStudent() {
+  clearEl('formError'); clearEl('formSuccess');
+  const fn = document.getElementById('fFirstname').value.trim();
+  const ln = document.getElementById('fLastname').value.trim();
+  const co = document.getElementById('fCourse').value.trim();
+  if (!fn||!ln||!co) { showFormErr('First Name, Last Name and Course are required.'); return; }
+
+  const dobRaw = document.getElementById('fDob').value;
+  let dobOdata = null;
+  if (dobRaw) { dobOdata = `/Date(${new Date(dobRaw).getTime()})/`; }
+
+  /* Exact field names from StudentType metadata */
+  const payload = {
+    Firstname: fn,
+    Lastname: ln,
+    Age: document.getElementById('fAge').value||null,
+    Gender: document.getElementById('fGender').value||null,
+    Course: co,
+    Courseduration: document.getElementById('fCourseduration').value||null,
+    Status: document.getElementById('fStatus').value||null,
+    ScholarShip: document.getElementById('fScholarShip').checked,
+    Dob: dobOdata
+  };
+
+  document.getElementById('saveBtnTxt').textContent='Saving…';
+  document.getElementById('saveBtn').disabled=true;
+  await fetchCsrfToken();
+
+  try {
+    let url, method;
+    const eid = document.getElementById('fEditId').value;
+    if (eid) {
+      /* PATCH — update */
+      url = `${BASE}/Student(${parseGuid(eid)})`;
+      method = 'PATCH';
+    } else {
+      /* POST — create */
+      url = `${BASE}/Student`;
+      method = 'POST';
+    }
+    const r = await fetch(url, {
+      method,
+      headers:{ ...HEADERS_WRITE, 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(()=>({}));
+      throw new Error(err?.error?.message?.value || `SAP ${r.status}`);
+    }
+    const returned = method==='POST' ? await r.json() : null;
+    const newStudent = returned?.d || {...payload, Id: eid||'new-'+Date.now()};
+    if (eid) {
+      const idx = allStudents.findIndex(s=>s.Id===eid);
+      if (idx>=0) allStudents[idx]={...allStudents[idx],...payload};
+    } else {
+      allStudents.unshift(newStudent);
+    }
+    showFormSuccess(eid?'Student updated successfully in SAP.':'Student created successfully in SAP.');
+    updateDashStats();
+    document.getElementById('navCount').textContent=allStudents.length;
+    setTimeout(()=>{ if(!eid) clearForm(); }, 1500);
+  } catch(e) {
+    showFormErr(`SAP error: ${e.message}`);
+  } finally {
+    document.getElementById('saveBtnTxt').textContent = document.getElementById('fEditId').value?'Update in SAP':'Create in SAP';
+    document.getElementById('saveBtn').disabled=false;
+  }
+}
+
+/* ── Delete Student ──────────────────────────────── */
+async function deleteStudent(id, name) {
+  if (!confirm(`Delete student "${name}"?\n\nThis will call DELETE on Student(${id}) in SAP.`)) return;
+  await fetchCsrfToken();
+  try {
+    const r = await fetch(`${BASE}/Student(${parseGuid(id)})`, {
+      method:'DELETE',
+      headers:{ 'X-CSRF-Token': csrfToken, 'Accept':'application/json' }
+    });
+    if (!r.ok && r.status!==204) throw new Error(`SAP ${r.status}`);
+    allStudents = allStudents.filter(s=>s.Id!==id);
+    document.getElementById('navCount').textContent=allStudents.length;
+    updateDashStats();
+    renderStudentTable(allStudents.filter(()=>true));
+    if (currentStudent?.Id===id) {
+      currentStudent=null;
+      document.getElementById('profileNavBtn').style.display='none';
+      document.getElementById('academicNavBtn').style.display='none';
+    }
+  } catch(e) {
+    alert(`Delete failed: ${e.message}`);
+  }
+}
+function deleteCurrentStudent() {
+  if (currentStudent) deleteStudent(currentStudent.Id, `${currentStudent.Firstname} ${currentStudent.Lastname}`);
+  nav('students');
+}
+
+/* ── Refresh all ─────────────────────────────────── */
+function refreshAll() {
+  allStudents = [];
+  loadStudents(true);
+  if (document.getElementById('page-dashboard').classList.contains('active')) {
+    document.getElementById('recentStudents').innerHTML='<div class="loading-box"><div class="spinner"></div></div>';
+  }
+}
+
+/* ── Helpers ─────────────────────────────────────── */
+function initials(fn,ln) { return ((fn?.[0]||'')+(ln?.[0]||'')).toUpperCase()||'?'; }
+const COLORS=['#0F6E56','#185FA5','#854F0B','#534AB7','#993C1D','#3B6D11','#633806','#A32D2D'];
+function avatarColor(name) { let h=0; for(const c of (name||'')) h=(h*31+c.charCodeAt(0))&0xffff; return COLORS[h%COLORS.length]; }
+function genderLabel(g) { return g==='M'?'Male':g==='F'?'Female':g||''; }
+function statusBadge(s) {
+  const v=(s||'').toLowerCase();
+  if (v.includes('admit')) return 'badge-success';
+  if (v.includes('activ')) return 'badge-info';
+  if (v.includes('inactiv')||v.includes('deset')) return 'badge-danger';
+  return 'badge-neutral';
+}
+function setText(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+function clearEl(id) { const el=document.getElementById(id); if(el) el.innerHTML=''; }
+function showErr(id,msg) { const el=document.getElementById(id); if(el) el.innerHTML=`<div class="err-banner">⚠ ${msg} (showing offline demo data)</div>`; }
+function showFormErr(msg) { const el=document.getElementById('formError'); if(el) el.innerHTML=`<div class="alert alert-danger">${msg}</div>`; }
+function showFormSuccess(msg) { const el=document.getElementById('formSuccess'); if(el) el.innerHTML=`<div class="alert alert-success">✓ ${msg}</div>`; }
+function setContainer(id, type, msg='') {
+  const el=document.getElementById(id);
+  if (!el) return;
+  if (type==='loading') el.innerHTML=`<div class="loading-box"><div class="spinner"></div><div class="loading-txt">${msg}</div></div>`;
+  else if (type==='empty') el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">${msg}</div></div>`;
+}
+
+/* ── Boot ────────────────────────────────────────── */
+loadStudents();
+</script>
+</body>
+</html>

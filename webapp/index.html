@@ -44,1124 +44,1371 @@
 
 
 
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vidyalaya — Student Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<title>Vidyalaya Public School — Excellence in Education</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
-/* ─── Design tokens ───────────────────────────────── */
+/* ═══════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════ */
 :root {
-  --navy:#0D1B3E; --navy-mid:#172B5C; --navy-soft:#1E3A78;
-  --gold:#C9972B; --gold-light:#F0C35A; --gold-pale:#FDF5E0;
-  --cream:#FAFAF7; --white:#FFFFFF;
-  --slate:#4A5568; --slate-light:#718096; --slate-pale:#EDF2F7;
-  --teal:#0F6E56; --teal-light:#1D9E75; --teal-pale:#E1F5EE;
-  --coral:#D85A30; --coral-pale:#FAECE7;
-  --red:#A32D2D; --red-pale:#FCEBEB;
-  --purple-pale:#EEEDFE; --purple:#534AB7;
-  --border:rgba(13,27,62,0.10);
-  --shadow-card:0 2px 20px rgba(13,27,62,0.08);
-  --shadow-hover:0 8px 40px rgba(13,27,62,0.14);
-  --radius:12px; --radius-sm:8px;
-  --font-display:'Playfair Display',serif;
-  --font-body:'DM Sans',sans-serif;
-  --sidebar:256px; --topbar:64px;
-  --ease:0.2s cubic-bezier(0.4,0,0.2,1);
-  /* SAP OData base */
-  --odata-base:/sap/opu/odata/sap/YRS_BIND_STUDENT_V2;
+  --navy:   #0A1628;
+  --navy-2: #122040;
+  --navy-3: #1A3060;
+  --gold:   #C4841E;
+  --gold-2: #E8A832;
+  --gold-3: #F5C355;
+  --gold-pale: #FBF3E0;
+  --cream:  #F8F6F0;
+  --white:  #FFFFFF;
+  --slate:  #4A5568;
+  --slate-2:#718096;
+  --slate-3:#A0AEC0;
+  --border: rgba(10,22,40,0.09);
+  --teal:   #0F6E56;
+  --teal-2: #1D9E75;
+  --red:    #A32D2D;
+
+  --ff-display: 'Playfair Display', Georgia, serif;
+  --ff-body:    'DM Sans', system-ui, sans-serif;
+
+  --ease: 0.3s cubic-bezier(0.4,0,0.2,1);
+  --ease-bounce: 0.5s cubic-bezier(0.34,1.56,0.64,1);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
 
-/* ─── Sidebar ─────────────────────────────────────── */
-.sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--navy);display:flex;flex-direction:column;z-index:200;transition:transform var(--ease);overflow:hidden}
-.sidebar::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent,transparent 40px,rgba(201,151,43,.03) 40px,rgba(201,151,43,.03) 80px);pointer-events:none}
-.sb-logo{padding:22px 22px 18px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
-.logo-wrap{display:flex;align-items:center;gap:11px}
-.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:17px;flex-shrink:0}
-.logo-name{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);line-height:1.2}
-.logo-tag{font-size:9.5px;font-weight:300;color:rgba(255,255,255,.4);letter-spacing:1.6px;text-transform:uppercase;margin-top:1px}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--ff-body); background: var(--white); color: var(--navy); line-height: 1.6; overflow-x: hidden; }
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }
 
-.sb-profile{padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:11px;flex-shrink:0}
-.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:12px;flex-shrink:0}
-.pname{font-size:12.5px;font-weight:500;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pid{font-size:10.5px;color:rgba(255,255,255,.4);margin-top:1px}
-
-.sb-nav{flex:1;overflow-y:auto;padding:10px 0;scrollbar-width:none}
-.sb-nav::-webkit-scrollbar{display:none}
-.nav-grp{margin-bottom:2px}
-.nav-grp-label{font-size:9.5px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:10px 22px 3px}
-.nav-btn{display:flex;align-items:center;gap:9px;padding:8px 22px;cursor:pointer;transition:all var(--ease);position:relative;border:none;background:none;width:100%;text-align:left;color:rgba(255,255,255,.58);font-size:13px;font-family:var(--font-body);border-radius:0}
-.nav-btn:hover{color:var(--white);background:rgba(255,255,255,.06)}
-.nav-btn.active{color:var(--gold-light);background:rgba(201,151,43,.12)}
-.nav-btn.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--gold);border-radius:0 3px 3px 0}
-.nav-ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.nav-badge{margin-left:auto;background:var(--gold);color:var(--navy);font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:20px;min-width:17px;text-align:center}
-.nav-badge.red{background:var(--red);color:#fff}
-
-.sb-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0}
-.sb-foot-link{display:flex;align-items:center;gap:9px;color:rgba(255,255,255,.4);font-size:12px;cursor:pointer;transition:color var(--ease);text-decoration:none}
-.sb-foot-link:hover{color:rgba(255,255,255,.7)}
-
-/* ─── Shell & topbar ──────────────────────────────── */
-.shell{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column}
-.topbar{height:var(--topbar);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:14px;position:sticky;top:0;z-index:100}
-.topbar-title{font-family:var(--font-display);font-size:17px;font-weight:500;color:var(--navy);flex:1}
-.search-wrap{position:relative;width:240px}
-.search-wrap input{width:100%;padding:7px 14px 7px 36px;border:1px solid var(--border);border-radius:22px;font-size:12.5px;font-family:var(--font-body);background:var(--slate-pale);color:var(--navy);outline:none;transition:all var(--ease)}
-.search-wrap input:focus{border-color:var(--navy-soft);background:var(--white);box-shadow:0 0 0 3px rgba(30,58,120,.07)}
-.search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;fill:none;stroke:var(--slate-light);stroke-width:2;stroke-linecap:round;pointer-events:none}
-.tb-actions{display:flex;align-items:center;gap:6px}
-.icon-btn{width:34px;height:34px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--ease);position:relative}
-.icon-btn:hover{background:var(--slate-pale)}
-.icon-btn svg{width:17px;height:17px;fill:none;stroke:var(--slate);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--coral);border:1.5px solid var(--white)}
-.hamburger{display:none;width:34px;height:34px;border:none;background:transparent;cursor:pointer;border-radius:7px;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:8px;transition:background var(--ease)}
-.hamburger:hover{background:var(--slate-pale)}
-.hamburger span{display:block;width:16px;height:1.5px;background:var(--navy);border-radius:2px;transition:all var(--ease)}
-
-/* ─── Main content ────────────────────────────────── */
-.content{padding:28px;flex:1}
-.page{display:none}
-.page.active{display:block;animation:fadeUp .3s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* ─── Utility components ──────────────────────────── */
-.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:500;font-family:var(--font-body);cursor:pointer;transition:all var(--ease);display:inline-flex;align-items:center;gap:5px;border:none;text-decoration:none}
-.btn-primary{background:var(--navy);color:var(--white)}
-.btn-primary:hover{background:var(--navy-mid)}
-.btn-outline{background:var(--white);color:var(--navy);border:1px solid var(--border)}
-.btn-outline:hover{background:var(--slate-pale)}
-.btn-danger{background:var(--red-pale);color:var(--red);border:1px solid rgba(163,45,45,.2)}
-.btn-danger:hover{background:rgba(163,45,45,.15)}
-.btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:500}
-.badge-success{background:var(--teal-pale);color:var(--teal)}
-.badge-warning{background:var(--gold-pale);color:#854F0B}
-.badge-danger{background:var(--red-pale);color:var(--red)}
-.badge-info{background:#E6F1FB;color:#185FA5}
-.badge-neutral{background:var(--slate-pale);color:var(--slate)}
-.badge-purple{background:var(--purple-pale);color:var(--purple)}
-
-.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:22px}
-.panel-hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.panel-title{font-family:var(--font-display);font-size:14.5px;font-weight:500;color:var(--navy)}
-.panel-action{font-size:11.5px;color:var(--teal-light);cursor:pointer;font-weight:500;border:none;background:none;font-family:var(--font-body);padding:0;transition:color var(--ease)}
-.panel-action:hover{color:var(--teal)}
-
-.alert{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:var(--radius-sm);margin-bottom:14px;font-size:12.5px}
-.alert-info{background:#E6F1FB;color:#185FA5;border:1px solid #B5D4F4}
-.alert-warn{background:var(--gold-pale);color:#854F0B;border:1px solid #FAC775}
-.alert-success{background:var(--teal-pale);color:var(--teal);border:1px solid #9FE1CB}
-.alert-danger{background:var(--red-pale);color:var(--red);border:1px solid #F09595}
-
-.loading-box{display:flex;align-items:center;justify-content:center;min-height:200px;flex-direction:column;gap:11px}
-.spinner{width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-size:12.5px;color:var(--slate-light)}
-
-.empty-state{text-align:center;padding:48px 20px;color:var(--slate-light)}
-.empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
-.empty-title{font-size:14px;font-weight:500;color:var(--slate);margin-bottom:5px}
-.empty-desc{font-size:12.5px}
-
-.err-banner{background:var(--red-pale);border:1px solid #F09595;border-radius:var(--radius-sm);padding:11px 14px;font-size:12.5px;color:var(--red);display:flex;gap:8px;align-items:flex-start;margin-bottom:14px}
-
-/* ─── Data table ──────────────────────────────────── */
-.tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.tbl-wrap table{width:100%;border-collapse:collapse}
-th{padding:10px 14px;font-size:10.5px;font-weight:500;color:var(--slate-light);text-align:left;background:var(--slate-pale);border-bottom:1px solid var(--border);letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
-td{padding:12px 14px;font-size:12.5px;color:var(--navy);border-bottom:1px solid var(--border);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tbody tr{transition:background var(--ease)}
-tbody tr:hover{background:rgba(13,27,62,.02)}
-.row-action{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--teal-light);cursor:pointer;border:none;background:none;font-family:var(--font-body);padding:3px 7px;border-radius:5px;transition:all var(--ease)}
-.row-action:hover{background:var(--teal-pale);color:var(--teal)}
-.row-action.red{color:var(--red)}
-.row-action.red:hover{background:var(--red-pale)}
-
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--border)}
-.pag-info{font-size:11.5px;color:var(--slate-light)}
-.pag-btns{display:flex;gap:4px}
-.pag-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11.5px;color:var(--navy);background:var(--white);transition:all var(--ease);font-family:var(--font-body)}
-.pag-btn:hover{background:var(--slate-pale)}
-.pag-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
-.pag-btn:disabled{opacity:.4;cursor:not-allowed}
-
-/* ─── Toolbar ─────────────────────────────────────── */
-.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.tb-search{position:relative;flex:1;min-width:180px}
-.tb-search input{width:100%;padding:8px 14px 8px 35px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:var(--font-body);background:var(--white);color:var(--navy);outline:none;transition:all var(--ease)}
-.tb-search input:focus{border-color:var(--navy-soft);box-shadow:0 0 0 3px rgba(30,58,120,.07)}
-.tb-search .search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%)}
-.filter-sel{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:var(--font-body);background:var(--white);color:var(--navy);cursor:pointer;outline:none;transition:border-color var(--ease)}
-.filter-sel:focus{border-color:var(--navy-soft)}
-
-/* ─── Stats grid ──────────────────────────────────── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all var(--ease)}
-.stat-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
-.stat-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
-.stat-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.si-blue{background:#E6F1FB;color:#185FA5}
-.si-green{background:var(--teal-pale);color:var(--teal)}
-.si-amber{background:var(--gold-pale);color:var(--gold)}
-.si-red{background:var(--red-pale);color:var(--red)}
-.si-purple{background:var(--purple-pale);color:var(--purple)}
-.stat-val{font-size:26px;font-weight:500;color:var(--navy);line-height:1;margin-bottom:3px;font-family:var(--font-display)}
-.stat-label{font-size:11.5px;color:var(--slate-light)}
-
-/* ─── Welcome banner ──────────────────────────────── */
-.welcome{background:var(--navy);border-radius:var(--radius);padding:26px 28px;position:relative;overflow:hidden;margin-bottom:22px}
-.welcome::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(201,151,43,.10)}
-.welcome::after{content:'';position:absolute;bottom:-30px;right:100px;width:100px;height:100px;border-radius:50%;background:rgba(29,158,117,.08)}
-.w-eye{font-size:10.5px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
-.w-head{font-family:var(--font-display);font-size:23px;font-weight:700;color:var(--white);line-height:1.25;margin-bottom:6px}
-.w-sub{font-size:13px;color:rgba(255,255,255,.52);max-width:460px}
-.w-pills{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap}
-.w-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);padding:5px 12px;border-radius:20px;font-size:11.5px;color:rgba(255,255,255,.6)}
-.w-pill strong{color:var(--white);font-weight:500}
-
-/* ─── Grid layouts ────────────────────────────────── */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-
-/* ─── Profile page ────────────────────────────────── */
-.prof-hero{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:22px}
-.prof-banner{height:110px;background:linear-gradient(120deg,var(--navy) 0%,var(--navy-soft) 60%,var(--teal) 100%);position:relative}
-.prof-body{padding:0 26px 22px}
-.prof-av-wrap{margin-top:-28px;margin-bottom:10px}
-.prof-av{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));border:3px solid var(--white);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:600;font-family:var(--font-display)}
-.prof-name-row{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.prof-fullname{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--navy)}
-.prof-sub{font-size:12.5px;color:var(--slate-light);margin-top:2px}
-.fields-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.field-box{background:var(--cream);border-radius:var(--radius-sm);padding:10px 12px}
-.field-lbl{font-size:10px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
-.field-val{font-size:13px;color:var(--navy);font-weight:500}
-.bool-yes{color:var(--teal);font-weight:600}
-.bool-no{color:var(--slate-light)}
-
-/* ─── Tabs ────────────────────────────────────────── */
-.tabs{display:flex;gap:1px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{padding:9px 16px;font-size:12.5px;font-weight:500;color:var(--slate);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all var(--ease);background:none;border-left:none;border-right:none;border-top:none;font-family:var(--font-body)}
-.tab:hover{color:var(--navy)}
-.tab.active{color:var(--navy);border-bottom-color:var(--navy)}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-
-/* ─── Academic results table ──────────────────────── */
-.acad-code{font-family:monospace;font-size:11.5px;background:var(--slate-pale);padding:2px 6px;border-radius:4px;color:var(--slate)}
-.result-pass{color:var(--teal);font-weight:600}
-.result-fail{color:var(--red);font-weight:600}
-.result-pending{color:var(--gold);font-weight:500}
-
-/* ─── Action buttons for SAP actions ─────────────── */
-.sap-action-btn{padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;font-family:var(--font-body);cursor:pointer;transition:all var(--ease);display:inline-flex;align-items:center;gap:5px;border:1px solid;margin-right:6px}
-.action-admit{background:var(--teal-pale);color:var(--teal);border-color:rgba(15,110,86,.3)}
-.action-admit:hover{background:rgba(29,158,117,.2)}
-.action-deadmit{background:var(--red-pale);color:var(--red);border-color:rgba(163,45,45,.3)}
-.action-deadmit:hover{background:rgba(163,45,45,.15)}
-.action-btn-wrap{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
-
-/* ─── Sidebar overlay mobile ──────────────────────── */
-.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
-.sb-overlay.open{display:block}
-
-/* ─── Responsive ──────────────────────────────────── */
-@media(max-width:1024px){:root{--sidebar:220px}.grid2{grid-template-columns:1fr}}
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .shell{margin-left:0}
-  .hamburger{display:flex}
-  .search-wrap{display:none}
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .content{padding:18px 14px}
-  .topbar{padding:0 14px}
-  .grid3{grid-template-columns:1fr 1fr}
+/* ═══════════════════════════════════════════════════
+   HEADER / NAV
+═══════════════════════════════════════════════════ */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 900;
+  transition: background var(--ease), box-shadow var(--ease), padding var(--ease);
+  padding: 0;
 }
-@media(max-width:480px){.stats-grid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
-@media print{.sidebar,.topbar{display:none}.shell{margin-left:0}.content{padding:0}}
+.site-header.scrolled {
+  background: rgba(10,22,40,0.97);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 40px rgba(0,0,0,0.25);
+}
+.nav-inner {
+  max-width: 1240px; margin: 0 auto;
+  display: flex; align-items: center;
+  padding: 20px 32px;
+  gap: 40px;
+  transition: padding var(--ease);
+}
+.site-header.scrolled .nav-inner { padding: 14px 32px; }
+
+.nav-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.brand-emblem {
+  width: 48px; height: 48px;
+  background: linear-gradient(145deg, var(--gold) 0%, var(--gold-3) 100%);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display); font-weight: 900;
+  color: var(--navy); font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(196,132,30,0.4);
+  transition: transform var(--ease-bounce);
+}
+.brand-emblem:hover { transform: rotate(-5deg) scale(1.08); }
+.brand-text { line-height: 1.1; }
+.brand-name {
+  font-family: var(--ff-display); font-size: 20px; font-weight: 700;
+  color: var(--white); letter-spacing: 0.3px;
+}
+.brand-tagline {
+  font-size: 10px; font-weight: 300; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(255,255,255,0.45);
+}
+
+.nav-links {
+  display: flex; align-items: center; gap: 6px; list-style: none; flex: 1;
+  justify-content: center;
+}
+.nav-links a {
+  font-size: 13.5px; font-weight: 400; color: rgba(255,255,255,0.72);
+  padding: 7px 14px; border-radius: 8px;
+  transition: all var(--ease); display: block;
+  letter-spacing: 0.2px;
+}
+.nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+.nav-links a.active { color: var(--gold-3); }
+
+.nav-cta {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.btn-manage {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  color: var(--navy); font-weight: 700; font-size: 13px;
+  padding: 10px 22px; border-radius: 10px; border: none;
+  cursor: pointer; font-family: var(--ff-body);
+  display: flex; align-items: center; gap: 7px;
+  transition: all var(--ease-bounce);
+  box-shadow: 0 4px 20px rgba(196,132,30,0.4);
+  letter-spacing: 0.2px;
+  text-decoration: none;
+}
+.btn-manage:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(196,132,30,0.55);
+}
+.btn-manage svg { width: 15px; height: 15px; fill: none; stroke: var(--navy); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Hamburger */
+.hamburger {
+  display: none; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.15);
+  background: transparent; border-radius: 8px; cursor: pointer;
+  align-items: center; justify-content: center; flex-direction: column;
+  gap: 5px; padding: 10px;
+}
+.hamburger span { display: block; width: 18px; height: 1.5px; background: var(--white); border-radius: 2px; transition: all var(--ease); }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(4.5px, 4.5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(4.5px, -4.5px); }
+
+.mobile-nav {
+  display: none; flex-direction: column;
+  background: rgba(10,22,40,0.98); backdrop-filter: blur(12px);
+  padding: 12px 20px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.mobile-nav.open { display: flex; }
+.mobile-nav a { color: rgba(255,255,255,0.75); padding: 11px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.mobile-nav a:last-child { border-bottom: none; }
+
+/* ═══════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  background: var(--navy);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center;
+}
+/* Geometric background pattern */
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 40%, rgba(196,132,30,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at -10% 80%, rgba(26,48,96,0.8) 0%, transparent 60%),
+    linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 40%, var(--navy-3) 100%);
+}
+.hero-grid {
+  position: absolute; inset: 0; opacity: 0.04;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+/* Decorative circles */
+.hero-circle {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(196,132,30,0.15);
+}
+.hc1 { width: 600px; height: 600px; right: -100px; top: -100px; }
+.hc2 { width: 400px; height: 400px; right: 50px; top: 50px; border-color: rgba(196,132,30,0.08); }
+.hc3 { width: 200px; height: 200px; right: 200px; top: 200px; background: rgba(196,132,30,0.04); border: none; }
+.hc4 { width: 300px; height: 300px; left: -80px; bottom: -80px; border-color: rgba(255,255,255,0.05); }
+
+.hero-inner {
+  max-width: 1240px; margin: 0 auto;
+  padding: 140px 32px 80px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  position: relative; z-index: 2; width: 100%;
+}
+.hero-left {}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(196,132,30,0.12);
+  border: 1px solid rgba(196,132,30,0.25);
+  padding: 6px 14px; border-radius: 30px;
+  font-size: 11px; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold-3);
+  margin-bottom: 24px;
+}
+.hero-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-3); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
+
+.hero-h1 {
+  font-family: var(--ff-display);
+  font-size: clamp(38px, 5vw, 62px);
+  font-weight: 900; line-height: 1.08;
+  color: var(--white);
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+.hero-h1 em { color: var(--gold-3); font-style: italic; }
+.hero-h1 .line-stroke {
+  -webkit-text-stroke: 1.5px var(--gold-3);
+  color: transparent;
+}
+
+.hero-sub {
+  font-size: 16px; color: rgba(255,255,255,0.58); line-height: 1.75;
+  max-width: 440px; margin-bottom: 36px; font-weight: 300;
+}
+
+.hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  color: var(--navy); font-weight: 700; font-size: 14.5px;
+  padding: 15px 32px; border-radius: 12px; border: none;
+  cursor: pointer; font-family: var(--ff-body);
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all var(--ease-bounce);
+  box-shadow: 0 6px 28px rgba(196,132,30,0.45);
+  text-decoration: none; letter-spacing: 0.2px;
+}
+.btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(196,132,30,0.6); }
+.btn-hero-secondary {
+  color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(255,255,255,0.18); padding: 14px 28px;
+  border-radius: 12px; transition: all var(--ease);
+}
+.btn-hero-secondary:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+
+.hero-stats {
+  display: flex; gap: 32px; margin-top: 44px;
+  padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+}
+.hero-stat-num {
+  font-family: var(--ff-display); font-size: 32px; font-weight: 700;
+  color: var(--white); line-height: 1;
+}
+.hero-stat-num span { color: var(--gold-3); }
+.hero-stat-label { font-size: 11.5px; color: rgba(255,255,255,0.45); margin-top: 3px; letter-spacing: 0.5px; }
+
+/* Hero right — school card */
+.hero-right { display: flex; justify-content: flex-end; }
+.school-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 24px; overflow: hidden;
+  width: 100%; max-width: 420px;
+  backdrop-filter: blur(10px);
+}
+.school-card-header {
+  background: linear-gradient(135deg, rgba(196,132,30,0.15) 0%, rgba(26,48,96,0.3) 100%);
+  padding: 28px 28px 0;
+  position: relative;
+}
+.school-card-seal {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: linear-gradient(145deg, var(--gold), var(--gold-3));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display); font-weight: 900; font-size: 28px;
+  color: var(--navy); margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(196,132,30,0.5);
+}
+.school-card-title {
+  font-family: var(--ff-display); font-size: 22px; font-weight: 700;
+  color: var(--white); margin-bottom: 4px;
+}
+.school-card-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 24px; letter-spacing: 0.5px; }
+
+.card-tabs { display: flex; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.card-tab {
+  padding: 10px 16px; font-size: 12px; color: rgba(255,255,255,0.45);
+  cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all var(--ease);
+}
+.card-tab.active { color: var(--gold-3); border-bottom-color: var(--gold-3); }
+
+.card-body { padding: 20px 28px 28px; }
+.info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { color: rgba(255,255,255,0.45); }
+.info-value { color: var(--white); font-weight: 500; }
+.info-badge {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.ib-green { background: rgba(29,158,117,0.15); color: #1D9E75; }
+.ib-gold { background: rgba(196,132,30,0.15); color: var(--gold-3); }
+.ib-blue { background: rgba(24,95,165,0.15); color: #5BA8F5; }
+
+.manage-cta-card {
+  margin: 0 28px 28px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  border-radius: 14px; padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  cursor: pointer; transition: all var(--ease-bounce);
+  text-decoration: none;
+}
+.manage-cta-card:hover { transform: scale(1.02); box-shadow: 0 10px 32px rgba(196,132,30,0.5); }
+.manage-cta-text { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+.manage-cta-sub { font-size: 11px; color: rgba(10,22,40,0.6); margin-top: 2px; }
+.manage-cta-arrow {
+  width: 36px; height: 36px; background: rgba(10,22,40,0.12); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.manage-cta-arrow svg { width: 16px; height: 16px; fill: none; stroke: var(--navy); stroke-width: 2.5; stroke-linecap: round; }
+
+/* ═══════════════════════════════════════════════════
+   SECTION BASE
+═══════════════════════════════════════════════════ */
+section { padding: 90px 0; }
+.container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold);
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.section-label::before { content: ''; width: 28px; height: 1.5px; background: var(--gold); border-radius: 2px; }
+.section-title {
+  font-family: var(--ff-display); font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700; color: var(--navy); line-height: 1.2; margin-bottom: 16px;
+}
+.section-title em { color: var(--gold); font-style: italic; }
+.section-sub { font-size: 15.5px; color: var(--slate-2); max-width: 560px; line-height: 1.75; }
+.section-header { margin-bottom: 50px; }
+.section-header.center { text-align: center; }
+.section-header.center .section-label { justify-content: center; }
+.section-header.center .section-sub { margin: 0 auto; }
+
+/* ═══════════════════════════════════════════════════
+   ABOUT STRIP
+═══════════════════════════════════════════════════ */
+.about-strip {
+  background: var(--navy);
+  padding: 28px 0;
+}
+.strip-inner {
+  max-width: 1240px; margin: 0 auto; padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.strip-item { text-align: center; }
+.strip-num {
+  font-family: var(--ff-display); font-size: 30px; font-weight: 700;
+  color: var(--gold-3); line-height: 1;
+}
+.strip-lbl { font-size: 11.5px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+.strip-div { width: 1px; height: 44px; background: rgba(255,255,255,0.1); }
+
+/* ═══════════════════════════════════════════════════
+   FEATURES / WHY US
+═══════════════════════════════════════════════════ */
+.features-section { background: var(--cream); }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+.feature-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 18px; padding: 28px;
+  transition: all var(--ease);
+  position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-3));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--ease);
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(10,22,40,0.1); }
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+}
+.feature-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.fi-gold { background: var(--gold-pale); color: var(--gold); }
+.fi-navy { background: rgba(10,22,40,0.06); color: var(--navy); }
+.fi-teal { background: rgba(15,110,86,0.08); color: var(--teal); }
+.fi-red  { background: rgba(163,45,45,0.07); color: var(--red); }
+.feature-title { font-family: var(--ff-display); font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+.feature-desc { font-size: 13.5px; color: var(--slate-2); line-height: 1.75; }
+
+/* ═══════════════════════════════════════════════════
+   PROGRAMS
+═══════════════════════════════════════════════════ */
+.programs-section { background: var(--white); }
+.programs-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+.prog-card {
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid var(--border);
+  transition: all var(--ease);
+  cursor: default;
+}
+.prog-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(10,22,40,0.1); }
+.prog-img {
+  height: 130px; display: flex; align-items: center; justify-content: center;
+  font-size: 48px; position: relative; overflow: hidden;
+}
+.prog-img::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(10,22,40,0.5) 0%, transparent 60%);
+}
+.prog-body { padding: 18px; background: var(--white); }
+.prog-level {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 5px;
+}
+.prog-name { font-family: var(--ff-display); font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.prog-desc { font-size: 12.5px; color: var(--slate-2); line-height: 1.6; }
+.prog-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.prog-meta { font-size: 11.5px; color: var(--slate-3); }
+.prog-badge { font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+.pb-green { background: rgba(15,110,86,0.08); color: var(--teal); }
+.pb-blue  { background: rgba(24,95,165,0.08); color: #185FA5; }
+.pb-gold  { background: var(--gold-pale); color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════
+   FACULTY
+═══════════════════════════════════════════════════ */
+.faculty-section { background: var(--cream); }
+.faculty-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 20px;
+}
+.fac-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 18px; padding: 24px 20px;
+  text-align: center; transition: all var(--ease);
+}
+.fac-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(10,22,40,0.1); }
+.fac-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display); font-size: 26px; font-weight: 700;
+  color: var(--white); flex-shrink: 0;
+  position: relative;
+}
+.fac-avatar::after {
+  content: '';
+  position: absolute; inset: -3px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-3));
+  z-index: -1; opacity: 0;
+  transition: opacity var(--ease);
+}
+.fac-card:hover .fac-avatar::after { opacity: 1; }
+.fac-name { font-family: var(--ff-display); font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+.fac-subject { font-size: 11.5px; color: var(--gold); font-weight: 500; margin-bottom: 6px; letter-spacing: 0.3px; }
+.fac-qual { font-size: 11.5px; color: var(--slate-2); }
+.fac-exp { display: inline-block; margin-top: 10px; font-size: 11px; background: var(--gold-pale); color: var(--gold); padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════
+   NOTICES / EVENTS
+═══════════════════════════════════════════════════ */
+.news-section { background: var(--white); }
+.news-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
+.news-list { display: flex; flex-direction: column; gap: 16px; }
+.news-card {
+  background: var(--cream); border-radius: 14px; padding: 20px;
+  display: flex; gap: 16px; transition: all var(--ease);
+  border: 1px solid var(--border); cursor: pointer;
+}
+.news-card:hover { background: var(--white); box-shadow: 0 8px 32px rgba(10,22,40,0.08); transform: translateX(4px); }
+.news-date-box {
+  flex-shrink: 0; width: 48px; text-align: center;
+  background: var(--navy); color: var(--white);
+  border-radius: 10px; padding: 8px 6px;
+}
+.news-date-day { font-family: var(--ff-display); font-size: 22px; font-weight: 700; line-height: 1; }
+.news-date-mon { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: .6; }
+.news-body { flex: 1; min-width: 0; }
+.news-tag { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.news-title { font-size: 14px; font-weight: 500; color: var(--navy); line-height: 1.4; margin-bottom: 4px; }
+.news-desc { font-size: 12.5px; color: var(--slate-2); line-height: 1.55; }
+
+.events-panel {
+  background: var(--navy); border-radius: 18px; padding: 24px; color: var(--white);
+  position: sticky; top: 100px;
+}
+.ep-title { font-family: var(--ff-display); font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+.event-item {
+  padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.event-item:last-child { border-bottom: none; }
+.event-dot {
+  width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0;
+}
+.ed-gold  { background: var(--gold-3); }
+.ed-teal  { background: #1D9E75; }
+.ed-blue  { background: #5BA8F5; }
+.ed-red   { background: #F09595; }
+.event-name { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+.event-date { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* ═══════════════════════════════════════════════════
+   ADMISSION BANNER
+═══════════════════════════════════════════════════ */
+.admission-section {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-3) 100%);
+  padding: 80px 0; position: relative; overflow: hidden;
+}
+.admission-section::before {
+  content: ''; position: absolute;
+  top: -80px; right: -80px; width: 360px; height: 360px; border-radius: 50%;
+  background: rgba(196,132,30,0.08);
+}
+.admission-section::after {
+  content: ''; position: absolute;
+  bottom: -60px; left: -60px; width: 240px; height: 240px; border-radius: 50%;
+  background: rgba(29,158,117,0.06);
+}
+.admission-inner {
+  max-width: 1240px; margin: 0 auto; padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 40px; flex-wrap: wrap; position: relative; z-index: 2;
+}
+.adm-left {}
+.adm-eyebrow { font-size: 10.5px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold-3); margin-bottom: 10px; }
+.adm-title { font-family: var(--ff-display); font-size: clamp(24px, 3.5vw, 38px); font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 14px; }
+.adm-sub { font-size: 14.5px; color: rgba(255,255,255,0.55); max-width: 480px; line-height: 1.7; }
+.adm-right { display: flex; flex-direction: column; gap: 12px; min-width: 260px; }
+.adm-stat {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.adm-stat-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(196,132,30,0.15);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.adm-stat-icon svg { width: 18px; height: 18px; fill: none; stroke: var(--gold-3); stroke-width: 1.8; stroke-linecap: round; }
+.adm-stat-num { font-family: var(--ff-display); font-size: 22px; font-weight: 700; color: var(--white); line-height: 1; }
+.adm-stat-lbl { font-size: 11.5px; color: rgba(255,255,255,0.4); }
+
+/* ═══════════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════════ */
+.testi-section { background: var(--cream); }
+.testi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+.testi-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 18px; padding: 26px;
+  transition: all var(--ease);
+}
+.testi-card:hover { box-shadow: 0 12px 40px rgba(10,22,40,0.08); transform: translateY(-2px); }
+.testi-quote {
+  font-size: 36px; color: var(--gold); line-height: 1;
+  font-family: Georgia, serif; margin-bottom: 12px;
+}
+.testi-text { font-size: 14px; color: var(--slate); line-height: 1.75; margin-bottom: 20px; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 10px; }
+.testi-av {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: var(--white); flex-shrink: 0;
+}
+.testi-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.testi-role { font-size: 11.5px; color: var(--slate-2); }
+.testi-stars { color: var(--gold-3); font-size: 13px; margin-bottom: 8px; }
+
+/* ═══════════════════════════════════════════════════
+   PORTAL CTA SECTION
+═══════════════════════════════════════════════════ */
+.portal-cta-section {
+  background: var(--white); padding: 80px 0;
+}
+.portal-cta-box {
+  max-width: 900px; margin: 0 auto;
+  background: var(--navy); border-radius: 24px;
+  padding: 56px 60px;
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 40px; align-items: center;
+  position: relative; overflow: hidden;
+}
+.portal-cta-box::before {
+  content: ''; position: absolute;
+  right: -80px; top: -80px; width: 280px; height: 280px; border-radius: 50%;
+  background: rgba(196,132,30,0.10);
+}
+.pcb-eye { font-size: 10.5px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold-3); margin-bottom: 10px; }
+.pcb-title { font-family: var(--ff-display); font-size: clamp(22px, 3vw, 32px); font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 12px; }
+.pcb-sub { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+.pcb-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 16px; position: relative; z-index: 2; }
+.btn-portal-main {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  color: var(--navy); font-weight: 700; font-size: 15px;
+  padding: 18px 36px; border-radius: 14px; border: none;
+  cursor: pointer; font-family: var(--ff-body);
+  display: inline-flex; align-items: center; gap: 9px;
+  transition: all var(--ease-bounce);
+  box-shadow: 0 6px 28px rgba(196,132,30,0.45);
+  text-decoration: none; white-space: nowrap;
+}
+.btn-portal-main:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 44px rgba(196,132,30,0.6); }
+.btn-portal-main svg { width: 18px; height: 18px; fill: none; stroke: var(--navy); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.pcb-note { font-size: 11.5px; color: rgba(255,255,255,0.3); text-align: center; }
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════ */
+footer {
+  background: var(--navy); color: rgba(255,255,255,0.6);
+  padding: 60px 0 0;
+}
+.footer-inner {
+  max-width: 1240px; margin: 0 auto; padding: 0 32px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px; margin-bottom: 40px;
+}
+.footer-brand {}
+.footer-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.footer-emblem {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-3));
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display); font-weight: 900; font-size: 18px; color: var(--navy);
+}
+.footer-name { font-family: var(--ff-display); font-size: 17px; font-weight: 700; color: var(--white); }
+.footer-desc { font-size: 13px; line-height: 1.7; max-width: 260px; margin-bottom: 20px; }
+.footer-contact { font-size: 12.5px; line-height: 1.9; }
+.footer-contact strong { color: rgba(255,255,255,0.8); }
+
+.footer-col h4 { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-3); margin-bottom: 16px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.footer-col li a { font-size: 13px; transition: color var(--ease); }
+.footer-col li a:hover { color: var(--white); }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 20px 32px;
+  max-width: 1240px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-copy { font-size: 12px; }
+.footer-sap { font-size: 11.5px; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; }
+.sap-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal-2); }
+
+/* ═══════════════════════════════════════════════════
+   SCROLL ANIMATIONS
+═══════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+.reveal-delay-4 { transition-delay: .4s; }
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+@media(max-width:1024px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero-right { justify-content: flex-start; }
+  .school-card { max-width: 100%; }
+  .news-layout { grid-template-columns: 1fr; }
+  .events-panel { position: static; }
+  .portal-cta-box { grid-template-columns: 1fr; text-align: center; }
+  .pcb-right { align-items: center; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:768px) {
+  section { padding: 60px 0; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .hero-stats { gap: 20px; }
+  .strip-inner { justify-content: center; }
+  .strip-div { display: none; }
+  .admission-inner { flex-direction: column; }
+  .portal-cta-box { padding: 36px 28px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+}
+@media(max-width:480px) {
+  .container { padding: 0 18px; }
+  .nav-inner { padding: 16px 18px; }
+  .hero-inner { padding: 120px 18px 60px; }
+  .hero-actions { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
-<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
-
-<!-- ─── Sidebar ──────────────────────────────────── -->
-<aside class="sidebar" id="sidebar">
-  <div class="sb-logo">
-    <div class="logo-wrap">
-      <div class="logo-icon">V</div>
-      <div>
-        <div class="logo-name">Vidyalaya</div>
-        <div class="logo-tag">Student Portal</div>
+<!-- ═══ HEADER ════════════════════════════════════ -->
+<header class="site-header" id="siteHeader">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">
+      <div class="brand-emblem">V</div>
+      <div class="brand-text">
+        <div class="brand-name">Vidyalaya</div>
+        <div class="brand-tagline">Public School</div>
       </div>
-    </div>
-  </div>
-
-  <div class="sb-profile">
-    <div class="avatar" id="sbAvatar">ST</div>
-    <div>
-      <div class="pname" id="sbName">Loading…</div>
-      <div class="pid" id="sbId">Connecting to SAP…</div>
-    </div>
-  </div>
-
-  <nav class="sb-nav">
-    <div class="nav-grp">
-      <div class="nav-grp-label">Main</div>
-      <button class="nav-btn active" onclick="nav('dashboard',this)">
-        <svg class="nav-ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </button>
-    </div>
-    <div class="nav-grp">
-      <div class="nav-grp-label">Students</div>
-      <button class="nav-btn" onclick="nav('students',this)">
-        <svg class="nav-ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        All Students
-        <span class="nav-badge" id="navCount">—</span>
-      </button>
-      <button class="nav-btn" onclick="nav('newstudent',this)">
-        <svg class="nav-ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-        Add Student
-      </button>
-    </div>
-    <div class="nav-grp">
-      <div class="nav-grp-label">Details</div>
-      <button class="nav-btn" id="profileNavBtn" onclick="nav('profile',this)" style="display:none">
-        <svg class="nav-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        Student Profile
-      </button>
-      <button class="nav-btn" id="academicNavBtn" onclick="nav('academic',this)" style="display:none">
-        <svg class="nav-ic" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        Academic Results
-      </button>
-    </div>
-  </nav>
-
-  <div class="sb-footer">
-    <a class="sb-foot-link" href="#">
-      <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      SAP OData: YRS_BIND_STUDENT_V2
     </a>
+
+    <ul class="nav-links">
+      <li><a href="#about" class="active">About</a></li>
+      <li><a href="#programs">Programs</a></li>
+      <li><a href="#faculty">Faculty</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a href="#admissions">Admissions</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="index2.html" class="btn-manage">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Manage Students
+      </a>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
-</aside>
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="#about">About</a>
+    <a href="#programs">Programs</a>
+    <a href="#faculty">Faculty</a>
+    <a href="#news">News &amp; Events</a>
+    <a href="#admissions">Admissions</a>
+    <a href="#contact">Contact</a>
+    <a href="index2.html" style="color:var(--gold-3);font-weight:600">🎓 Manage Students →</a>
+  </nav>
+</header>
 
-<!-- ─── Shell ─────────────────────────────────────── -->
-<div class="shell">
-  <header class="topbar">
-    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="topbar-title" id="topbarTitle">Dashboard</div>
-    <div class="search-wrap">
-      <svg class="search-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" placeholder="Search students…" id="globalSearch" oninput="onGlobalSearch(this.value)">
-    </div>
-    <div class="tb-actions">
-      <button class="icon-btn" onclick="refreshAll()" title="Refresh from SAP">
-        <svg viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      </button>
-      <button class="icon-btn" title="Notifications">
-        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-dot"></span>
-      </button>
-    </div>
-  </header>
+<!-- ═══ HERO ══════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-circle hc1"></div>
+  <div class="hero-circle hc2"></div>
+  <div class="hero-circle hc3"></div>
+  <div class="hero-circle hc4"></div>
 
-  <main class="content">
-
-    <!-- ═══ DASHBOARD ════════════════════════════════ -->
-    <div class="page active" id="page-dashboard">
-      <div class="welcome">
-        <div class="w-eye">SAP RAP Backend Connected</div>
-        <div class="w-head">Student Management Portal</div>
-        <div class="w-sub">Live data from <strong style="color:rgba(255,255,255,.85)">YRS_BIND_STUDENT_V2</strong> via OData v2. Manage students, academic results, admissions and more.</div>
-        <div class="w-pills">
-          <div class="w-pill">Entity Set <strong>Student</strong></div>
-          <div class="w-pill">Navigation <strong>to_Academic</strong></div>
-          <div class="w-pill">Actions <strong>setAdmitted / deSet</strong></div>
-          <div class="w-pill" id="dateChip"><strong id="todayStr">—</strong></div>
-        </div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-dot"></div>
+        Est. 1984 · CBSE Affiliated
       </div>
-
-      <div class="stats-grid" id="dashStats">
-        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-blue"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="stat-val" id="dsTotal">—</div><div class="stat-label">Total Students</div></div>
-        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-green"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg></div></div><div class="stat-val" id="dsAdmitted">—</div><div class="stat-label">Admitted</div></div>
-        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div><div class="stat-val" id="dsScholar">—</div><div class="stat-label">Scholarships</div></div>
-        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-purple"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div></div><div class="stat-val" id="dsCourses">—</div><div class="stat-label">Distinct Courses</div></div>
-        <div class="stat-card"><div class="stat-hdr"><div class="stat-icon si-red"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="stat-val" id="dsBonus">—</div><div class="stat-label">Total Bonus Pool</div></div>
+      <h1 class="hero-h1">
+        Shaping <em>Minds,</em><br>
+        Building <span class="line-stroke">Futures</span>
+      </h1>
+      <p class="hero-sub">
+        Vidyalaya Public School has been nurturing young scholars for over four decades — combining academic excellence with holistic development in a vibrant, inclusive environment.
+      </p>
+      <div class="hero-actions">
+        <a href="#admissions" class="btn-hero-primary">
+          <svg style="width:16px;height:16px;fill:none;stroke:var(--navy);stroke-width:2.2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Apply for Admission
+        </a>
+        <a href="#programs" class="btn-hero-secondary">
+          Explore Programs →
+        </a>
       </div>
-
-      <div class="grid2">
-        <div class="panel">
-          <div class="panel-hdr"><span class="panel-title">Recent Students</span><button class="panel-action" onclick="nav('students',document.querySelector('.nav-btn:nth-child(2)'))">View all →</button></div>
-          <div id="recentStudents"><div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching from SAP…</div></div></div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">40<span>+</span></div>
+          <div class="hero-stat-label">Years of Excellence</div>
         </div>
-        <div class="panel">
-          <div class="panel-hdr"><span class="panel-title">Status Breakdown</span></div>
-          <div id="statusBreakdown" style="padding:16px"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">3<span>,</span>200<span>+</span></div>
+          <div class="hero-stat-label">Students Enrolled</div>
         </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-hdr">
-          <span class="panel-title">OData Endpoint Info</span>
-          <span style="font-size:11px;color:var(--slate-light);font-family:monospace">/sap/opu/odata/sap/YRS_BIND_STUDENT_V2/</span>
+        <div class="hero-stat">
+          <div class="hero-stat-num">98<span>%</span></div>
+          <div class="hero-stat-label">Board Pass Rate</div>
         </div>
-        <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
-          <div class="field-box"><div class="field-lbl">Entity Set</div><div class="field-val" style="font-family:monospace;font-size:12px">Student</div></div>
-          <div class="field-box"><div class="field-lbl">Sub-Entity</div><div class="field-val" style="font-family:monospace;font-size:12px">AcademicRes (to_Academic)</div></div>
-          <div class="field-box"><div class="field-lbl">Key Field</div><div class="field-val" style="font-family:monospace;font-size:12px">Id (Edm.Guid)</div></div>
-          <div class="field-box"><div class="field-lbl">Actions</div><div class="field-val" style="font-family:monospace;font-size:12px">setAdmitted / deSet</div></div>
-          <div class="field-box"><div class="field-lbl">OData Version</div><div class="field-val" style="font-family:monospace;font-size:12px">v2 (JSON)</div></div>
-          <div class="field-box"><div class="field-lbl">Namespace</div><div class="field-val" style="font-family:monospace;font-size:12px">cds_yrs_c_student_df</div></div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">120<span>+</span></div>
+          <div class="hero-stat-label">Expert Faculty</div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ STUDENTS LIST ════════════════════════════ -->
-    <div class="page" id="page-students">
-      <div class="toolbar">
-        <div class="tb-search">
-          <svg class="search-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" placeholder="Search by First Name, Last Name, Course…" id="stuSearch" oninput="filterStudents()">
-        </div>
-        <select class="filter-sel" id="stuStatus" onchange="filterStudents()">
-          <option value="">All Status</option>
-        </select>
-        <select class="filter-sel" id="stuCourse" onchange="filterStudents()">
-          <option value="">All Courses</option>
-        </select>
-        <select class="filter-sel" id="stuGender" onchange="filterStudents()">
-          <option value="">All Gender</option>
-          <option value="M">Male</option>
-          <option value="F">Female</option>
-        </select>
-        <button class="btn btn-primary" onclick="loadStudents(true)">
-          <svg viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Refresh SAP
-        </button>
-        <button class="btn btn-outline" onclick="nav('newstudent')">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New Student
-        </button>
-      </div>
-      <div id="stuError"></div>
-      <div id="stuContainer"><div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching Student entity from SAP OData…</div></div></div>
-    </div>
-
-    <!-- ═══ NEW / EDIT STUDENT ════════════════════════ -->
-    <div class="page" id="page-newstudent">
-      <div class="panel">
-        <div class="panel-hdr">
-          <span class="panel-title" id="formTitle">Create New Student</span>
-          <button class="btn btn-outline" onclick="nav('students')">← Back</button>
-        </div>
-        <div style="padding:20px">
-          <div id="formError"></div>
-          <div id="formSuccess"></div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px">
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">First Name *</label>
-              <input type="text" id="fFirstname" class="form-input" placeholder="e.g. Rahul" maxlength="100">
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Last Name *</label>
-              <input type="text" id="fLastname" class="form-input" placeholder="e.g. Sharma" maxlength="100">
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Age</label>
-              <input type="number" id="fAge" class="form-input" placeholder="e.g. 20" maxlength="4">
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Date of Birth</label>
-              <input type="date" id="fDob" class="form-input">
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Gender</label>
-              <select id="fGender" class="form-input">
-                <option value="">— Select —</option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Course *</label>
-              <input type="text" id="fCourse" class="form-input" placeholder="e.g. BSC" maxlength="50">
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Course Duration</label>
-              <input type="text" id="fCourseduration" class="form-input" placeholder="e.g. 0004" maxlength="4">
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--slate-light);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Status</label>
-              <input type="text" id="fStatus" class="form-input" placeholder="e.g. Active" maxlength="20">
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;padding-top:22px">
-              <input type="checkbox" id="fScholarShip" style="width:16px;height:16px;cursor:pointer">
-              <label for="fScholarShip" style="font-size:13px;cursor:pointer;color:var(--navy)">Scholarship awarded</label>
-            </div>
+    <div class="hero-right">
+      <div class="school-card">
+        <div class="school-card-header">
+          <div class="school-card-seal">V</div>
+          <div class="school-card-title">Vidyalaya Public School</div>
+          <div class="school-card-sub">Academic Year 2024–25</div>
+          <div class="card-tabs">
+            <div class="card-tab active">Overview</div>
+            <div class="card-tab">Results</div>
+            <div class="card-tab">Events</div>
           </div>
-          <div style="display:flex;gap:10px">
-            <button class="btn btn-primary" id="saveBtn" onclick="saveStudent()">
-              <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
-              <span id="saveBtnTxt">Create in SAP</span>
-            </button>
-            <button class="btn btn-outline" onclick="clearForm()">Clear</button>
-            <button class="btn btn-outline" onclick="nav('students')">Cancel</button>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-label">Affiliation</span>
+            <span class="info-badge ib-blue">CBSE Board</span>
           </div>
-          <input type="hidden" id="fEditId">
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ STUDENT PROFILE ══════════════════════════ -->
-    <div class="page" id="page-profile">
-      <div class="prof-hero" id="profHero">
-        <div class="prof-banner"></div>
-        <div class="prof-body">
-          <div class="prof-av-wrap"><div class="prof-av" id="profAv">—</div></div>
-          <div class="prof-name-row">
-            <div>
-              <div class="prof-fullname" id="profName">—</div>
-              <div class="prof-sub" id="profSub">—</div>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-              <span class="badge" id="profStatusBadge">—</span>
-              <button class="btn btn-outline" style="font-size:11.5px;padding:6px 12px" onclick="editCurrentStudent()">
-                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit
-              </button>
-              <button class="btn btn-outline" style="font-size:11.5px;padding:6px 12px;color:var(--red)" onclick="deleteCurrentStudent()">
-                <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                Delete
-              </button>
-            </div>
+          <div class="info-row">
+            <span class="info-label">Classes</span>
+            <span class="info-value">I – XII</span>
           </div>
-          <div class="fields-grid" id="profFields"></div>
+          <div class="info-row">
+            <span class="info-label">Streams</span>
+            <span class="info-value">Science · Commerce · Arts</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Accreditation</span>
+            <span class="info-badge ib-gold">Grade A+</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Admissions 2025</span>
+            <span class="info-badge ib-green">Open</span>
+          </div>
         </div>
-        <!-- SAP Actions -->
-        <div class="action-btn-wrap">
-          <button class="sap-action-btn action-admit" onclick="sapAction('setAdmitted')">
-            <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-            Set Admitted
-          </button>
-          <button class="sap-action-btn action-deadmit" onclick="sapAction('deSet')">
-            <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            Deset Admit
-          </button>
-          <span style="font-size:11px;color:var(--slate-light);align-self:center">SAP RAP Actions via FunctionImport</span>
-        </div>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" onclick="showTab(this,'tab-info')">Student Info</button>
-        <button class="tab" onclick="showTab(this,'tab-academic')">Academic Results (to_Academic)</button>
-      </div>
-
-      <div class="tab-panel active" id="tab-info">
-        <div class="panel" id="profFullFields"></div>
-      </div>
-      <div class="tab-panel" id="tab-academic">
-        <div id="acadContainer"><div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching AcademicRes via to_Academic navigation…</div></div></div>
+        <a href="index2.html" class="manage-cta-card">
+          <div>
+            <div class="manage-cta-text">Student Management Portal</div>
+            <div class="manage-cta-sub">SAP RAP Backend · Live Data</div>
+          </div>
+          <div class="manage-cta-arrow">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </a>
       </div>
     </div>
+  </div>
+</section>
 
-    <!-- ═══ ACADEMIC DETAIL ═══════════════════════════ -->
-    <div class="page" id="page-academic">
-      <button class="btn btn-outline" style="margin-bottom:16px" onclick="backToProfile()">← Back to Student</button>
-      <div class="panel">
-        <div class="panel-hdr"><span class="panel-title">Academic Results — <span id="acadStudName">—</span></span></div>
-        <div id="acadDetail"><div class="loading-box"><div class="spinner"></div></div></div>
-      </div>
-    </div>
-
-  </main>
+<!-- ═══ STATS STRIP ═══════════════════════════════ -->
+<div class="about-strip">
+  <div class="strip-inner">
+    <div class="strip-item"><div class="strip-num">3,200+</div><div class="strip-lbl">Students</div></div>
+    <div class="strip-div"></div>
+    <div class="strip-item"><div class="strip-num">120+</div><div class="strip-lbl">Faculty Members</div></div>
+    <div class="strip-div"></div>
+    <div class="strip-item"><div class="strip-num">40+</div><div class="strip-lbl">Years Old</div></div>
+    <div class="strip-div"></div>
+    <div class="strip-item"><div class="strip-num">98%</div><div class="strip-lbl">Pass Rate</div></div>
+    <div class="strip-div"></div>
+    <div class="strip-item"><div class="strip-num">15+</div><div class="strip-lbl">Clubs & Activities</div></div>
+    <div class="strip-div"></div>
+    <div class="strip-item"><div class="strip-num">50+</div><div class="strip-lbl">Awards Won</div></div>
+  </div>
 </div>
 
-<style>
-.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font-body);color:var(--navy);background:var(--white);outline:none;transition:all var(--ease)}
-.form-input:focus{border-color:var(--navy-soft);box-shadow:0 0 0 3px rgba(30,58,120,.07)}
-</style>
-
-<script>
-/* ══════════════════════════════════════════════════════
-   CONFIG — update BASE_URL if running behind SAP proxy
-══════════════════════════════════════════════════════ */
-const BASE = '/sap/opu/odata/sap/YRS_BIND_STUDENT_V2';
-const HEADERS_READ  = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
-const HEADERS_WRITE = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
-
-/* State */
-let allStudents = [];
-let currentStudent = null;
-let csrfToken = '';
-let editingId = null;
-
-/* ── Navigation ──────────────────────────────────── */
-const PAGE_TITLES = {
-  dashboard:'Dashboard', students:'All Students',
-  newstudent:'New Student', profile:'Student Profile',
-  academic:'Academic Results'
-};
-function nav(pageId, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const pg = document.getElementById('page-' + pageId);
-  if (pg) pg.classList.add('active');
-  if (btn) btn.classList.add('active');
-  document.getElementById('topbarTitle').textContent = PAGE_TITLES[pageId] || pageId;
-  closeSidebar();
-  if (pageId === 'students' && allStudents.length === 0) loadStudents();
-  if (pageId === 'newstudent') { editingId = null; resetForm(); }
-}
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sbOverlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sbOverlay').classList.remove('open');
-}
-function showTab(el, tabId) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById(tabId).classList.add('active');
-  if (tabId === 'tab-academic' && currentStudent) loadAcademicResults(currentStudent.Id);
-}
-function backToProfile() { nav('profile'); }
-
-/* ── Date ────────────────────────────────────────── */
-document.getElementById('todayStr').textContent =
-  new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-
-/* ── CSRF Token fetch ────────────────────────────── */
-async function fetchCsrfToken() {
-  try {
-    const r = await fetch(BASE + '/Student?$top=0', {
-      headers: { 'X-CSRF-Token': 'Fetch', 'Accept': 'application/json' }
-    });
-    csrfToken = r.headers.get('x-csrf-token') || '';
-  } catch(e) { csrfToken = ''; }
-}
-
-/* ── Parse OData JSON ────────────────────────────── */
-function parseResults(data) {
-  if (!data) return [];
-  if (data.d && Array.isArray(data.d.results)) return data.d.results;
-  if (data.d && data.d.results) return [data.d.results];
-  if (data.d) return [data.d];
-  return [];
-}
-function parseODataDate(v) {
-  if (!v) return '—';
-  const m = String(v).match(/\/Date\((\d+)(?:[+-]\d+)?\)\//);
-  if (m) return new Date(+m[1]).toLocaleDateString('en-IN');
-  return v;
-}
-function parseGuid(id) {
-  // OData v2 Guid key format: guid'...'
-  return `guid'${id}'`;
-}
-
-/* ── Load ALL Students ───────────────────────────── */
-async function loadStudents(force = false) {
-  if (allStudents.length > 0 && !force) { renderStudentTable(allStudents); return; }
-  setContainer('stuContainer', 'loading', 'Fetching Student entity from SAP OData…');
-  clearEl('stuError');
-  try {
-    const r = await fetch(`${BASE}/Student?$format=json&$top=200&$orderby=Firstname`, { headers: HEADERS_READ });
-    if (!r.ok) throw new Error(`SAP returned ${r.status}: ${r.statusText}`);
-    const data = await r.json();
-    allStudents = parseResults(data);
-    updateDashStats();
-    populateFilters();
-    renderStudentTable(allStudents);
-    updateSidebar(allStudents);
-  } catch(e) {
-    showErr('stuError', e.message);
-    setContainer('stuContainer', 'empty', 'Could not connect to SAP backend.');
-    /* Dev: load mock data so UI is usable */
-    allStudents = getMockStudents();
-    updateDashStats();
-    populateFilters();
-    renderStudentTable(allStudents);
-    updateSidebar(allStudents);
-  }
-}
-
-/* ── Mock data for dev/offline ───────────────────── */
-function getMockStudents() {
-  return [
-    {Id:'00000000-0001-0000-0000-000000000001',Firstname:'Rahul',Lastname:'Sharma',Age:'21',Course:'BSC',Courseduration:'0003',Status:'Admitted',Gender:'M',genderDesc:'Male',ScholarShip:true,Dob:'/Date(956534400000)/',BonusAmount:5000},
-    {Id:'00000000-0002-0000-0000-000000000002',Firstname:'Priya',Lastname:'Mehta',Age:'20',Course:'BCOM',Courseduration:'0003',Status:'Active',Gender:'F',genderDesc:'Female',ScholarShip:false,Dob:'/Date(990748800000)/',BonusAmount:0},
-    {Id:'00000000-0003-0000-0000-000000000003',Firstname:'Rohan',Lastname:'Das',Age:'22',Course:'BBA',Courseduration:'0003',Status:'Admitted',Gender:'M',genderDesc:'Male',ScholarShip:true,Dob:'/Date(924652800000)/',BonusAmount:7500},
-    {Id:'00000000-0004-0000-0000-000000000004',Firstname:'Sneha',Lastname:'Patel',Age:'19',Course:'BSC',Courseduration:'0003',Status:'Active',Gender:'F',genderDesc:'Female',ScholarShip:false,Dob:'/Date(1025136000000)/',BonusAmount:0},
-    {Id:'00000000-0005-0000-0000-000000000005',Firstname:'Ananya',Lastname:'Joshi',Age:'23',Course:'MCA',Courseduration:'0002',Status:'Admitted',Gender:'F',genderDesc:'Female',ScholarShip:true,Dob:'/Date(893980800000)/',BonusAmount:10000},
-  ];
-}
-
-/* ── Update sidebar & dashboard ──────────────────── */
-function updateSidebar(arr) {
-  document.getElementById('navCount').textContent = arr.length;
-  if (arr.length > 0) {
-    const s = arr[0];
-    document.getElementById('sbAvatar').textContent = initials(s.Firstname, s.Lastname);
-    document.getElementById('sbName').textContent = `${s.Firstname} ${s.Lastname}`;
-    document.getElementById('sbId').textContent = s.Id ? s.Id.slice(0,8)+'…' : '—';
-  }
-}
-
-function updateDashStats() {
-  const total = allStudents.length;
-  const admitted = allStudents.filter(s => (s.Status||'').toLowerCase().includes('admit')).length;
-  const scholar = allStudents.filter(s => s.ScholarShip === true || s.ScholarShip === 'true').length;
-  const courses = [...new Set(allStudents.map(s => s.Course).filter(Boolean))].length;
-  const bonus = allStudents.reduce((a,s) => a + (parseInt(s.BonusAmount)||0), 0);
-  setText('dsTotal', total);
-  setText('dsAdmitted', admitted);
-  setText('dsScholar', scholar);
-  setText('dsCourses', courses);
-  setText('dsBonus', bonus ? '₹'+bonus.toLocaleString('en-IN') : '0');
-
-  // Recent students
-  const recent = allStudents.slice(0,5);
-  const recentHtml = recent.length ? `<div style="padding:0">${recent.map(s=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--ease)" onclick="openProfile('${s.Id}')" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">
-      <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor(s.Firstname)};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;flex-shrink:0">${initials(s.Firstname,s.Lastname)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12.5px;font-weight:500;color:var(--navy)">${s.Firstname} ${s.Lastname}</div>
-        <div style="font-size:11px;color:var(--slate-light)">${s.Course||'—'} · Age ${s.Age||'—'}</div>
+<!-- ═══ WHY VIDYALAYA ════════════════════════════ -->
+<section class="features-section" id="about">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Why Choose Us</div>
+      <h2 class="section-title">Education That Goes <em>Beyond</em> Textbooks</h2>
+      <p class="section-sub">We blend academic rigour with character building, sports, arts, and technology to nurture well-rounded individuals ready for tomorrow.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon fi-gold">
+          <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div class="feature-title">Academic Excellence</div>
+        <div class="feature-desc">Consistently ranked among the top CBSE schools in the region with 98%+ board results and multiple rank holders every year.</div>
       </div>
-      <span class="badge ${statusBadge(s.Status)}">${s.Status||'—'}</span>
-    </div>`).join('')}</div>` : '<div class="empty-state"><div class="empty-title">No students loaded</div></div>';
-  document.getElementById('recentStudents').innerHTML = recentHtml;
-
-  // Status breakdown
-  const statusMap = {};
-  allStudents.forEach(s => { const k=s.Status||'Unknown'; statusMap[k]=(statusMap[k]||0)+1; });
-  const colors = ['var(--teal)','#185FA5','var(--gold)','var(--coral)','var(--purple)','var(--red)'];
-  let i=0;
-  const breakdownHtml = Object.entries(statusMap).map(([k,v])=>{
-    const pct = Math.round((v/total)*100);
-    const c = colors[i++%colors.length];
-    return `<div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
-        <span style="color:var(--navy);font-weight:500">${k}</span>
-        <span style="color:var(--slate-light)">${v} (${pct}%)</span>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon fi-teal">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="feature-title">Modern Infrastructure</div>
+        <div class="feature-desc">State-of-the-art science labs, a 50,000-volume library, smart classrooms, and a full-size sports complex on a sprawling 15-acre campus.</div>
       </div>
-      <div style="height:6px;background:var(--slate-pale);border-radius:10px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:${c};border-radius:10px;transition:width .6s ease"></div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon fi-navy">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="feature-title">Expert Faculty</div>
+        <div class="feature-desc">120+ highly qualified teachers — many with postgraduate and doctoral degrees — dedicated to individualized mentorship and student growth.</div>
       </div>
-    </div>`;
-  }).join('');
-  document.getElementById('statusBreakdown').innerHTML = breakdownHtml || '<div class="empty-state"><div class="empty-title">No data</div></div>';
-}
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon fi-red">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div class="feature-title">Holistic Development</div>
+        <div class="feature-desc">From cultural fests to national sports competitions, debate leagues to science olympiads — every student's unique talent finds a stage here.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon fi-gold">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="feature-title">Digital Learning</div>
+        <div class="feature-desc">Smart boards in every classroom, a dedicated computer lab, SAP-powered student management system and e-learning resources available 24/7.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon fi-teal">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        </div>
+        <div class="feature-title">Safe Environment</div>
+        <div class="feature-desc">24/7 CCTV surveillance, trained counsellors, an anti-bullying committee, and a gender-sensitive inclusive culture ensure every student feels safe.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-/* ── Populate filter dropdowns ───────────────────── */
-function populateFilters() {
-  const statuses = [...new Set(allStudents.map(s=>s.Status).filter(Boolean))];
-  const sel = document.getElementById('stuStatus');
-  sel.innerHTML = '<option value="">All Status</option>' + statuses.map(s=>`<option value="${s}">${s}</option>`).join('');
-  const courses = [...new Set(allStudents.map(s=>s.Course).filter(Boolean))];
-  const csel = document.getElementById('stuCourse');
-  csel.innerHTML = '<option value="">All Courses</option>' + courses.map(c=>`<option value="${c}">${c}</option>`).join('');
-}
-
-/* ── Render Student Table ────────────────────────── */
-let currentPage = 1;
-const PAGE_SIZE = 10;
-
-function filterStudents() {
-  const q = (document.getElementById('stuSearch').value||'').toLowerCase();
-  const status = document.getElementById('stuStatus').value;
-  const course = document.getElementById('stuCourse').value;
-  const gender = document.getElementById('stuGender').value;
-  const filtered = allStudents.filter(s =>
-    (!q || [s.Firstname,s.Lastname,s.Course,s.Status].join(' ').toLowerCase().includes(q)) &&
-    (!status || s.Status === status) &&
-    (!course || s.Course === course) &&
-    (!gender || s.Gender === gender)
-  );
-  currentPage = 1;
-  renderStudentTable(filtered);
-}
-function onGlobalSearch(v) {
-  if (document.getElementById('page-students').classList.contains('active')) {
-    document.getElementById('stuSearch').value = v;
-    filterStudents();
-  }
-}
-
-function renderStudentTable(data) {
-  const total = data.length;
-  const start = (currentPage-1)*PAGE_SIZE;
-  const pageData = data.slice(start, start+PAGE_SIZE);
-  const pages = Math.max(1, Math.ceil(total/PAGE_SIZE));
-
-  if (!pageData.length) {
-    document.getElementById('stuContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No students found</div><div class="empty-desc">Try adjusting your filters or refresh from SAP.</div></div>`;
-    return;
-  }
-
-  /* OData-exact field names from StudentType */
-  document.getElementById('stuContainer').innerHTML = `
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th>Student</th>
-          <th>Age</th>
-          <th>Gender</th>
-          <th>Course</th>
-          <th>Duration</th>
-          <th>DoB</th>
-          <th>Scholarship</th>
-          <th>Bonus Amount</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr></thead>
-        <tbody>${pageData.map(s=>`<tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:9px">
-              <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor(s.Firstname)};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:600;flex-shrink:0">${initials(s.Firstname,s.Lastname)}</div>
-              <div>
-                <div style="font-weight:500;font-size:13px">${s.Firstname||''} ${s.Lastname||''}</div>
-                <div style="font-size:10.5px;color:var(--slate-light);font-family:monospace">${(s.Id||'').slice(0,8)}…</div>
-              </div>
-            </div>
-          </td>
-          <td>${s.Age||'—'}</td>
-          <td>${s.genderDesc||genderLabel(s.Gender)||'—'}</td>
-          <td><span class="acad-code">${s.Course||'—'}</span></td>
-          <td>${s.Courseduration||'—'} yrs</td>
-          <td style="white-space:nowrap">${parseODataDate(s.Dob)}</td>
-          <td>${s.ScholarShip===true||s.ScholarShip==='true'?'<span class="badge badge-success">Yes</span>':'<span class="badge badge-neutral">No</span>'}</td>
-          <td>${s.BonusAmount!=null?'₹'+Number(s.BonusAmount).toLocaleString('en-IN'):'—'}</td>
-          <td><span class="badge ${statusBadge(s.Status)}">${s.Status||'—'}</span></td>
-          <td style="white-space:nowrap">
-            <button class="row-action" onclick="openProfile('${s.Id}')">View</button>
-            <button class="row-action" onclick="openEdit('${s.Id}')">Edit</button>
-            <button class="row-action red" onclick="deleteStudent('${s.Id}','${s.Firstname} ${s.Lastname}')">Del</button>
-          </td>
-        </tr>`).join('')}</tbody>
-      </table>
-      <div class="pagination">
-        <div class="pag-info">Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total} students</div>
-        <div class="pag-btns">
-          <button class="pag-btn" onclick="changePage(-1)" ${currentPage===1?'disabled':''}>‹</button>
-          ${Array.from({length:pages},(_,i)=>`<button class="pag-btn ${i+1===currentPage?'active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('')}
-          <button class="pag-btn" onclick="changePage(1)" ${currentPage===pages?'disabled':''}>›</button>
+<!-- ═══ PROGRAMS ══════════════════════════════════ -->
+<section class="programs-section" id="programs">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Academic Programs</div>
+      <h2 class="section-title">Every Stage of the <em>Learning Journey</em></h2>
+      <p class="section-sub">From nursery to senior secondary, our curriculum is designed to challenge, inspire and prepare students for the world ahead.</p>
+    </div>
+    <div class="programs-grid">
+      <div class="prog-card reveal reveal-delay-1">
+        <div class="prog-img" style="background:linear-gradient(135deg,#FDF5E0,#F0C35A)">🌱</div>
+        <div class="prog-body">
+          <div class="prog-level">Foundation</div>
+          <div class="prog-name">Nursery & KG</div>
+          <div class="prog-desc">Play-based learning nurturing curiosity, language skills, creativity and early numeracy in a warm, supportive setting.</div>
+          <div class="prog-footer">
+            <span class="prog-meta">Age 3 – 5 yrs</span>
+            <span class="prog-badge pb-gold">Inquiry-Based</span>
+          </div>
         </div>
       </div>
-    </div>`;
-}
-function changePage(d) { currentPage = Math.max(1,currentPage+d); filterStudents(); }
-function goPage(p) { currentPage=p; filterStudents(); }
+      <div class="prog-card reveal reveal-delay-2">
+        <div class="prog-img" style="background:linear-gradient(135deg,#E1F5EE,#9FE1CB)">📚</div>
+        <div class="prog-body">
+          <div class="prog-level">Primary</div>
+          <div class="prog-name">Classes I – V</div>
+          <div class="prog-desc">Building strong foundations in Maths, Science, English and Hindi with project-based activities and continuous assessment.</div>
+          <div class="prog-footer">
+            <span class="prog-meta">Age 6 – 10 yrs</span>
+            <span class="prog-badge pb-green">Activity-Rich</span>
+          </div>
+        </div>
+      </div>
+      <div class="prog-card reveal reveal-delay-3">
+        <div class="prog-img" style="background:linear-gradient(135deg,#E6F1FB,#85B7EB)">🔬</div>
+        <div class="prog-body">
+          <div class="prog-level">Middle School</div>
+          <div class="prog-name">Classes VI – VIII</div>
+          <div class="prog-desc">Deepening conceptual understanding across all subjects with lab work, presentations and co-curricular involvement.</div>
+          <div class="prog-footer">
+            <span class="prog-meta">Age 11 – 13 yrs</span>
+            <span class="prog-badge pb-blue">STEM Focus</span>
+          </div>
+        </div>
+      </div>
+      <div class="prog-card reveal reveal-delay-4">
+        <div class="prog-img" style="background:linear-gradient(135deg,#EEEDFE,#AFA9EC)">🎯</div>
+        <div class="prog-body">
+          <div class="prog-level">Secondary</div>
+          <div class="prog-name">Classes IX – X</div>
+          <div class="prog-desc">Rigorous CBSE preparation with board-exam coaching, mock tests, and career-awareness counselling for every student.</div>
+          <div class="prog-footer">
+            <span class="prog-meta">Age 14 – 15 yrs</span>
+            <span class="prog-badge pb-blue">CBSE Board</span>
+          </div>
+        </div>
+      </div>
+      <div class="prog-card reveal reveal-delay-1">
+        <div class="prog-img" style="background:linear-gradient(135deg,#FAECE7,#F0997B)">⚗️</div>
+        <div class="prog-body">
+          <div class="prog-level">Senior Secondary</div>
+          <div class="prog-name">Science Stream (XI–XII)</div>
+          <div class="prog-desc">PCM / PCB with advanced lab facilities, JEE / NEET coaching integrated into the regular timetable.</div>
+          <div class="prog-footer">
+            <span class="prog-meta">Age 16 – 17 yrs</span>
+            <span class="prog-badge pb-green">JEE · NEET</span>
+          </div>
+        </div>
+      </div>
+      <div class="prog-card reveal reveal-delay-2">
+        <div class="prog-img" style="background:linear-gradient(135deg,#EAF3DE,#C0DD97)">📊</div>
+        <div class="prog-body">
+          <div class="prog-level">Senior Secondary</div>
+          <div class="prog-name">Commerce & Arts (XI–XII)</div>
+          <div class="prog-desc">Accountancy, Economics, Business Studies and Humanities with industry visits, internships and entrepreneurship workshops.</div>
+          <div class="prog-footer">
+            <span class="prog-meta">Age 16 – 17 yrs</span>
+            <span class="prog-badge pb-gold">CA · CLAT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-/* ── Open Student Profile ────────────────────────── */
-function openProfile(id) {
-  const s = allStudents.find(x => x.Id===id);
-  if (!s) return;
-  currentStudent = s;
-  fillProfilePage(s);
-  document.getElementById('profileNavBtn').style.display='flex';
-  document.getElementById('academicNavBtn').style.display='flex';
-  // reset tab
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-  document.querySelectorAll('.tab-panel').forEach((p,i)=>p.classList.toggle('active',i===0));
-  document.getElementById('acadContainer').innerHTML = '<div class="loading-box"><div class="spinner"></div><div class="loading-txt">Click "Academic Results" tab to load…</div></div>';
-  nav('profile', document.getElementById('profileNavBtn'));
-}
+<!-- ═══ FACULTY ════════════════════════════════════ -->
+<section class="faculty-section" id="faculty">
+  <div class="container">
+    <div class="section-header center reveal">
+      <div class="section-label">Our Faculty</div>
+      <h2 class="section-title">Meet Our <em>Expert Educators</em></h2>
+      <p class="section-sub">Passionate teachers who go beyond syllabus — mentors who shape careers and inspire lifelong learners.</p>
+    </div>
+    <div class="faculty-grid">
+      <div class="fac-card reveal reveal-delay-1">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#0F6E56,#1D9E75)">SK</div>
+        <div class="fac-name">Dr. Sunita Kapoor</div>
+        <div class="fac-subject">Mathematics</div>
+        <div class="fac-qual">PhD · IIT Delhi</div>
+        <div class="fac-exp">22 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-2">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#185FA5,#378ADD)">RM</div>
+        <div class="fac-name">Prof. Rakesh Mishra</div>
+        <div class="fac-subject">Physics</div>
+        <div class="fac-qual">M.Sc. · BHU Gold Medallist</div>
+        <div class="fac-exp">18 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-3">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#854F0B,#C4841E)">AN</div>
+        <div class="fac-name">Ms. Anita Nair</div>
+        <div class="fac-subject">English Literature</div>
+        <div class="fac-qual">MA English · JNU</div>
+        <div class="fac-exp">15 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-4">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#534AB7,#7F77DD)">PG</div>
+        <div class="fac-name">Dr. Pradeep Gupta</div>
+        <div class="fac-subject">Chemistry</div>
+        <div class="fac-qual">PhD · AIIMS Research</div>
+        <div class="fac-exp">20 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-1">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#993C1D,#D85A30)">RD</div>
+        <div class="fac-name">Mrs. Rekha Desai</div>
+        <div class="fac-subject">History & Civics</div>
+        <div class="fac-qual">MA History · DU</div>
+        <div class="fac-exp">12 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-2">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#3B6D11,#639922)">VK</div>
+        <div class="fac-name">Mr. Vivek Kumar</div>
+        <div class="fac-subject">Computer Science</div>
+        <div class="fac-qual">MCA · SAP Certified</div>
+        <div class="fac-exp">10 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-3">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#0F6E56,#5DCAA5)">MS</div>
+        <div class="fac-name">Ms. Meera Sharma</div>
+        <div class="fac-subject">Biology</div>
+        <div class="fac-qual">M.Sc. Biology · Pune</div>
+        <div class="fac-exp">14 yrs experience</div>
+      </div>
+      <div class="fac-card reveal reveal-delay-4">
+        <div class="fac-avatar" style="background:linear-gradient(135deg,#A32D2D,#E24B4A)">AT</div>
+        <div class="fac-name">Mr. Amit Trivedi</div>
+        <div class="fac-subject">Physical Education</div>
+        <div class="fac-qual">B.P.Ed · NIS Patiala</div>
+        <div class="fac-exp">16 yrs experience</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-function fillProfilePage(s) {
-  const name = `${s.Firstname||''} ${s.Lastname||''}`.trim();
-  document.getElementById('profAv').textContent = initials(s.Firstname,s.Lastname);
-  document.getElementById('profAv').style.background = avatarColor(s.Firstname);
-  document.getElementById('profName').textContent = name || '—';
-  document.getElementById('profSub').textContent = `Course: ${s.Course||'—'} · Duration: ${s.Courseduration||'—'} yrs · Age: ${s.Age||'—'}`;
-  const badge = document.getElementById('profStatusBadge');
-  badge.textContent = s.Status||'—';
-  badge.className = 'badge ' + statusBadge(s.Status);
-  document.getElementById('profFields').innerHTML = [
-    ['First Name','Firstname'],['Last Name','Lastname'],
-    ['Age','Age'],['Gender',null],['Date of Birth','Dob',true],
-    ['Course','Course'],['Course Duration','Courseduration'],
-    ['Status','Status'],['Scholarship',null,false,'bool'],
-    ['Bonus Amount',null,false,'bonus'],['Student ID','Id',false,'id']
-  ].map(([lbl,key,isDate,special])=>{
-    let val;
-    if (special==='bool') val = s.ScholarShip===true||s.ScholarShip==='true' ? '<span class="bool-yes">✓ Yes</span>' : '<span class="bool-no">No</span>';
-    else if (special==='bonus') val = s.BonusAmount!=null ? '₹'+Number(s.BonusAmount).toLocaleString('en-IN') : '—';
-    else if (special==='id') val = `<span style="font-family:monospace;font-size:11px">${s.Id||'—'}</span>`;
-    else if (key==='Gender') val = s.genderDesc||genderLabel(s.Gender)||'—';
-    else if (isDate) val = parseODataDate(s[key]);
-    else val = s[key]||'—';
-    return `<div class="field-box"><div class="field-lbl">${lbl}</div><div class="field-val">${val}</div></div>`;
-  }).join('');
-}
+<!-- ═══ NEWS & EVENTS ════════════════════════════ -->
+<section class="news-section" id="news">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Latest Updates</div>
+      <h2 class="section-title">News & <em>Events</em></h2>
+    </div>
+    <div class="news-layout">
+      <div class="news-list">
+        <div class="news-card reveal reveal-delay-1">
+          <div class="news-date-box"><div class="news-date-day">15</div><div class="news-date-mon">Jun</div></div>
+          <div class="news-body">
+            <div class="news-tag">Examination</div>
+            <div class="news-title">Half-Yearly Examinations Begin — Full Schedule Released</div>
+            <div class="news-desc">The half-yearly examinations for classes VI–XII commence on 15th June. Students can download hall tickets and timetables from the portal.</div>
+          </div>
+        </div>
+        <div class="news-card reveal reveal-delay-2">
+          <div class="news-date-box"><div class="news-date-day">20</div><div class="news-date-mon">Jun</div></div>
+          <div class="news-body">
+            <div class="news-tag">Sports</div>
+            <div class="news-title">Annual Sports Day 2025 — Registration Now Open</div>
+            <div class="news-desc">Register for athletics, swimming, cricket, football and badminton events. Inter-house competition starts with heats on 18th June.</div>
+          </div>
+        </div>
+        <div class="news-card reveal reveal-delay-3">
+          <div class="news-date-box"><div class="news-date-day">28</div><div class="news-date-mon">May</div></div>
+          <div class="news-body">
+            <div class="news-tag">Achievement</div>
+            <div class="news-title">Class X Board Results — School Scores 98.7% Pass Rate</div>
+            <div class="news-desc">Vidyalaya students achieved outstanding results in CBSE Class X boards with 14 students scoring above 95% aggregate.</div>
+          </div>
+        </div>
+        <div class="news-card reveal reveal-delay-4">
+          <div class="news-date-box"><div class="news-date-day">10</div><div class="news-date-mon">Jun</div></div>
+          <div class="news-body">
+            <div class="news-tag">Admissions</div>
+            <div class="news-title">2025–26 Admissions Open for Classes I, VI, IX and XI</div>
+            <div class="news-desc">Applications for the next academic year are now being accepted. Last date to apply is 30th June. Apply online or visit the school office.</div>
+          </div>
+        </div>
+      </div>
+      <div class="events-panel reveal reveal-delay-2">
+        <div class="ep-title">Upcoming Events</div>
+        <div class="event-item">
+          <div class="event-dot ed-gold"></div>
+          <div><div class="event-name">Annual Science Exhibition</div><div class="event-date">June 8, 2025</div></div>
+        </div>
+        <div class="event-item">
+          <div class="event-dot ed-teal"></div>
+          <div><div class="event-name">Inter-School Debate Championship</div><div class="event-date">June 12, 2025</div></div>
+        </div>
+        <div class="event-item">
+          <div class="event-dot ed-blue"></div>
+          <div><div class="event-name">Half-Yearly Examinations</div><div class="event-date">June 15–28, 2025</div></div>
+        </div>
+        <div class="event-item">
+          <div class="event-dot ed-gold"></div>
+          <div><div class="event-name">Annual Sports Day</div><div class="event-date">June 20, 2025</div></div>
+        </div>
+        <div class="event-item">
+          <div class="event-dot ed-red"></div>
+          <div><div class="event-name">Parent-Teacher Meeting (XI–XII)</div><div class="event-date">June 25, 2025</div></div>
+        </div>
+        <div class="event-item">
+          <div class="event-dot ed-teal"></div>
+          <div><div class="event-name">Independence Day Celebrations</div><div class="event-date">August 15, 2025</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-/* ── Load Academic Results (to_Academic navigation) ── */
-async function loadAcademicResults(studentId) {
-  document.getElementById('acadContainer').innerHTML = '<div class="loading-box"><div class="spinner"></div><div class="loading-txt">Fetching AcademicRes via to_Academic…</div></div>';
-  try {
-    const r = await fetch(`${BASE}/Student(${parseGuid(studentId)})/to_Academic?$format=json&$orderby=Semester`, { headers: HEADERS_READ });
-    if (!r.ok) throw new Error(`SAP ${r.status}`);
-    const data = await r.json();
-    const results = parseResults(data);
-    renderAcademicTable(results, 'acadContainer');
-  } catch(e) {
-    // Fallback mock
-    renderAcademicTable(getMockAcademic(), 'acadContainer');
-  }
-}
-function getMockAcademic() {
-  return [
-    {Id:'00000000-0001-0000-0000-000000000001',Course:'A',Semester:'0001',course_desc:'Mathematics',semester_desc:'Semester 1',Semresult:'P',semres_desc:'Pass'},
-    {Id:'00000000-0001-0000-0000-000000000001',Course:'B',Semester:'0001',course_desc:'Physics',semester_desc:'Semester 1',Semresult:'P',semres_desc:'Pass'},
-    {Id:'00000000-0001-0000-0000-000000000001',Course:'C',Semester:'0002',course_desc:'Chemistry',semester_desc:'Semester 2',Semresult:'F',semres_desc:'Fail'},
-    {Id:'00000000-0001-0000-0000-000000000001',Course:'A',Semester:'0002',course_desc:'Mathematics',semester_desc:'Semester 2',Semresult:'P',semres_desc:'Pass'},
-  ];
-}
-function renderAcademicTable(results, containerId) {
-  const el = document.getElementById(containerId);
-  if (!results.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No academic records found</div><div class="empty-desc">No results in AcademicRes for this student.</div></div>'; return; }
-  el.innerHTML = `<div class="tbl-wrap"><table>
-    <thead><tr>
-      <th>Semester</th><th>Sem. Description</th>
-      <th>Course Code</th><th>Course Description</th>
-      <th>Result Code</th><th>Result</th>
-    </tr></thead>
-    <tbody>${results.map(r=>`<tr>
-      <td><span class="acad-code">${r.Semester||'—'}</span></td>
-      <td>${r.semester_desc||'—'}</td>
-      <td><span class="acad-code">${r.Course||'—'}</span></td>
-      <td>${r.course_desc||'—'}</td>
-      <td><span class="acad-code">${r.Semresult||'—'}</span></td>
-      <td><span class="${resultClass(r.Semresult,r.semres_desc)}">${r.semres_desc||r.Semresult||'—'}</span></td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
-}
-function resultClass(code, desc) {
-  const v = (desc||code||'').toLowerCase();
-  if (v.includes('pass')||v==='p') return 'result-pass';
-  if (v.includes('fail')||v==='f') return 'result-fail';
-  return 'result-pending';
-}
+<!-- ═══ ADMISSIONS BANNER ════════════════════════ -->
+<section class="admission-section" id="admissions">
+  <div class="admission-inner">
+    <div class="adm-left reveal">
+      <div class="adm-eyebrow">Admissions Open 2025–26</div>
+      <h2 class="adm-title">Begin Your Child's<br>Journey of <em style="color:var(--gold-3);font-style:italic">Excellence</em></h2>
+      <p class="adm-sub">Seats are limited. Apply early to secure a place at one of the region's most sought-after schools. We welcome students from all backgrounds.</p>
+      <div style="display:flex;gap:14px;margin-top:28px;flex-wrap:wrap">
+        <a href="#" class="btn-hero-primary" style="font-size:13.5px;padding:13px 26px">Apply Online Now</a>
+        <a href="#contact" class="btn-hero-secondary" style="font-size:13.5px;padding:12px 24px">Schedule a Visit</a>
+      </div>
+    </div>
+    <div class="adm-right reveal reveal-delay-2">
+      <div class="adm-stat">
+        <div class="adm-stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div><div class="adm-stat-num">3,200+</div><div class="adm-stat-lbl">Current Students</div></div>
+      </div>
+      <div class="adm-stat">
+        <div class="adm-stat-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+        <div><div class="adm-stat-num">98%</div><div class="adm-stat-lbl">Board Pass Rate 2024</div></div>
+      </div>
+      <div class="adm-stat">
+        <div class="adm-stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+        <div><div class="adm-stat-num">50+</div><div class="adm-stat-lbl">National Awards</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-/* ── SAP Actions (FunctionImport) ───────────────── */
-async function sapAction(action) {
-  if (!currentStudent) return;
-  const label = action==='setAdmitted' ? 'Set Admitted' : 'Deset Admit';
-  if (!confirm(`Trigger SAP action "${label}" for ${currentStudent.Firstname} ${currentStudent.Lastname}?`)) return;
-  await fetchCsrfToken();
-  try {
-    const r = await fetch(`${BASE}/${action}?Id=${parseGuid(currentStudent.Id)}`, {
-      method:'POST',
-      headers:{ ...HEADERS_WRITE, 'X-CSRF-Token': csrfToken }
-    });
-    if (!r.ok) throw new Error(`SAP ${r.status}`);
-    const data = await r.json();
-    const updated = data.d || {};
-    if (updated.Status) {
-      currentStudent.Status = updated.Status;
-      const idx = allStudents.findIndex(s=>s.Id===currentStudent.Id);
-      if (idx>=0) allStudents[idx] = {...allStudents[idx], ...updated};
-      fillProfilePage(currentStudent);
-      alert(`✓ Action "${label}" completed. Status: ${updated.Status}`);
-    } else {
-      alert(`✓ Action "${label}" sent to SAP successfully.`);
-    }
-  } catch(e) {
-    alert(`⚠ SAP action failed: ${e.message}\n\nMake sure the Fiori app is running on an SAP BTP trial and you are authenticated.`);
-  }
-}
+<!-- ═══ TESTIMONIALS ══════════════════════════════ -->
+<section class="testi-section">
+  <div class="container">
+    <div class="section-header center reveal">
+      <div class="section-label">What People Say</div>
+      <h2 class="section-title">Voices of Our <em>Community</em></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"</div>
+        <div class="testi-text">My daughter's confidence has soared since joining Vidyalaya. The faculty genuinely cares about each child's growth — academically and personally. Best decision we ever made.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:linear-gradient(135deg,#0F6E56,#1D9E75)">SP</div>
+          <div><div class="testi-name">Savita Pillai</div><div class="testi-role">Parent · Class VIII</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"</div>
+        <div class="testi-text">The integrated JEE coaching alongside school has been a game-changer. I secured AIR 342 in JEE Mains and couldn't have done it without my teachers here at Vidyalaya.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:linear-gradient(135deg,#185FA5,#378ADD)">AR</div>
+          <div><div class="testi-name">Arjun Reddy</div><div class="testi-role">Alumnus · Batch 2023</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"</div>
+        <div class="testi-text">As a teacher at Vidyalaya for 12 years, I'm proud of our culture of continuous learning. The SAP-powered student management system has truly modernised our administrative work.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:linear-gradient(135deg,#854F0B,#C4841E)">AN</div>
+          <div><div class="testi-name">Anita Nair</div><div class="testi-role">Senior Faculty · English</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-/* ── Create / Edit Student (PATCH / POST) ────────── */
-function resetForm() {
-  ['Firstname','Lastname','Age','Dob','Gender','Course','Courseduration','Status','ScholarShip'].forEach(f=>{
-    const el = document.getElementById('f'+f);
-    if (!el) return;
-    if (el.type==='checkbox') el.checked=false;
-    else el.value='';
+<!-- ═══ MANAGE STUDENTS CTA ═══════════════════════ -->
+<section class="portal-cta-section">
+  <div class="container">
+    <div class="portal-cta-box reveal">
+      <div>
+        <div class="pcb-eye">For School Administration</div>
+        <div class="pcb-title">Access the Student<br>Management Portal</div>
+        <div class="pcb-sub">manage student records, academic results, admissions status, scholarships and more in real time.</div>
+      </div>
+      <div class="pcb-right">
+        <a href="index2.html" class="btn-portal-main">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Manage Students
+        </a>
+        <div class="pcb-note">Live OData · YRS_BIND_STUDENT_V2</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════ -->
+<footer id="contact">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-emblem">V</div>
+        <div class="footer-name">Vidyalaya Public School</div>
+      </div>
+      <div class="footer-desc">Nurturing young minds since 1984. A CBSE-affiliated institution committed to academic excellence and holistic development.</div>
+      <div class="footer-contact">
+        <strong>Address:</strong> 14, Knowledge Park, Sector 62,<br>Noida, Uttar Pradesh – 201309<br>
+        <strong>Phone:</strong> +91 120 456 7890<br>
+        <strong>Email:</strong> info@vidyalayaschool.edu.in
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#about">About School</a></li>
+        <li><a href="#programs">Academic Programs</a></li>
+        <li><a href="#faculty">Faculty</a></li>
+        <li><a href="#admissions">Admissions</a></li>
+        <li><a href="#news">News & Events</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Academics</h4>
+      <ul>
+        <li><a href="#">Curriculum</a></li>
+        <li><a href="#">Examination</a></li>
+        <li><a href="#">Results</a></li>
+        <li><a href="#">Scholarships</a></li>
+        <li><a href="#">Holiday Calendar</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Administration</h4>
+      <ul>
+        <li><a href="portal/student-portal.html" style="color:var(--gold-3);font-weight:600">🎓 Student Portal</a></li>
+        <li><a href="#">Fee Payment</a></li>
+        <li><a href="#">Transport</a></li>
+        <li><a href="#">Library</a></li>
+        <li><a href="#">Alumni</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Vidyalaya Public School. All rights reserved.</div>
+    <div class="footer-sap">
+      <div class="sap-dot"></div>
+      Student Portal powered by SAP RAP · OData v2 · YRS_BIND_STUDENT_V2
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Header scroll ─────────────────────────────── */
+const header = document.getElementById('siteHeader');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+/* ── Mobile nav ────────────────────────────────── */
+function toggleMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  const hbg = document.getElementById('hamburger');
+  nav.classList.toggle('open');
+  hbg.classList.toggle('open');
+}
+document.querySelectorAll('.mobile-nav a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('mobileNav').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
   });
-  document.getElementById('fEditId').value='';
-  document.getElementById('formTitle').textContent='Create New Student';
-  document.getElementById('saveBtnTxt').textContent='Create in SAP';
-  clearEl('formError'); clearEl('formSuccess');
-}
-function clearForm() { editingId=null; resetForm(); }
+});
 
-function openEdit(id) {
-  const s = allStudents.find(x=>x.Id===id);
-  if (!s) return;
-  editingId = id;
-  document.getElementById('fFirstname').value = s.Firstname||'';
-  document.getElementById('fLastname').value = s.Lastname||'';
-  document.getElementById('fAge').value = s.Age||'';
-  document.getElementById('fGender').value = s.Gender||'';
-  document.getElementById('fCourse').value = s.Course||'';
-  document.getElementById('fCourseduration').value = s.Courseduration||'';
-  document.getElementById('fStatus').value = s.Status||'';
-  document.getElementById('fScholarShip').checked = s.ScholarShip===true||s.ScholarShip==='true';
-  if (s.Dob) {
-    const m = String(s.Dob).match(/\/Date\((\d+)/);
-    if (m) document.getElementById('fDob').value = new Date(+m[1]).toISOString().slice(0,10);
-  }
-  document.getElementById('fEditId').value = id;
-  document.getElementById('formTitle').textContent='Edit Student';
-  document.getElementById('saveBtnTxt').textContent='Update in SAP';
-  clearEl('formError'); clearEl('formSuccess');
-  nav('newstudent');
-}
-function editCurrentStudent() { if (currentStudent) openEdit(currentStudent.Id); }
-
-async function saveStudent() {
-  clearEl('formError'); clearEl('formSuccess');
-  const fn = document.getElementById('fFirstname').value.trim();
-  const ln = document.getElementById('fLastname').value.trim();
-  const co = document.getElementById('fCourse').value.trim();
-  if (!fn||!ln||!co) { showFormErr('First Name, Last Name and Course are required.'); return; }
-
-  const dobRaw = document.getElementById('fDob').value;
-  let dobOdata = null;
-  if (dobRaw) { dobOdata = `/Date(${new Date(dobRaw).getTime()})/`; }
-
-  /* Exact field names from StudentType metadata */
-  const payload = {
-    Firstname: fn,
-    Lastname: ln,
-    Age: document.getElementById('fAge').value||null,
-    Gender: document.getElementById('fGender').value||null,
-    Course: co,
-    Courseduration: document.getElementById('fCourseduration').value||null,
-    Status: document.getElementById('fStatus').value||null,
-    ScholarShip: document.getElementById('fScholarShip').checked,
-    Dob: dobOdata
-  };
-
-  document.getElementById('saveBtnTxt').textContent='Saving…';
-  document.getElementById('saveBtn').disabled=true;
-  await fetchCsrfToken();
-
-  try {
-    let url, method;
-    const eid = document.getElementById('fEditId').value;
-    if (eid) {
-      /* PATCH — update */
-      url = `${BASE}/Student(${parseGuid(eid)})`;
-      method = 'PATCH';
-    } else {
-      /* POST — create */
-      url = `${BASE}/Student`;
-      method = 'POST';
+/* ── Smooth nav active state ───────────────────── */
+const sections = document.querySelectorAll('section[id], footer[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+      });
     }
-    const r = await fetch(url, {
-      method,
-      headers:{ ...HEADERS_WRITE, 'X-CSRF-Token': csrfToken },
-      body: JSON.stringify(payload)
-    });
-    if (!r.ok) {
-      const err = await r.json().catch(()=>({}));
-      throw new Error(err?.error?.message?.value || `SAP ${r.status}`);
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => observer.observe(s));
+
+/* ── Scroll reveal ─────────────────────────────── */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
     }
-    const returned = method==='POST' ? await r.json() : null;
-    const newStudent = returned?.d || {...payload, Id: eid||'new-'+Date.now()};
-    if (eid) {
-      const idx = allStudents.findIndex(s=>s.Id===eid);
-      if (idx>=0) allStudents[idx]={...allStudents[idx],...payload};
-    } else {
-      allStudents.unshift(newStudent);
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ── Card tab switcher (hero card) ─────────────── */
+document.querySelectorAll('.card-tab').forEach((tab, i, all) => {
+  tab.addEventListener('click', () => {
+    all.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+/* ── Animated counters ─────────────────────────── */
+function animateCount(el, target, suffix='') {
+  let start = 0;
+  const duration = 1800;
+  const step = Math.ceil(target / (duration / 16));
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = start.toLocaleString('en-IN') + suffix;
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCount(document.getElementById('dsHeroTotal'), 3200, '+');
+      counterObs.disconnect();
     }
-    showFormSuccess(eid?'Student updated successfully in SAP.':'Student created successfully in SAP.');
-    updateDashStats();
-    document.getElementById('navCount').textContent=allStudents.length;
-    setTimeout(()=>{ if(!eid) clearForm(); }, 1500);
-  } catch(e) {
-    showFormErr(`SAP error: ${e.message}`);
-  } finally {
-    document.getElementById('saveBtnTxt').textContent = document.getElementById('fEditId').value?'Update in SAP':'Create in SAP';
-    document.getElementById('saveBtn').disabled=false;
-  }
-}
-
-/* ── Delete Student ──────────────────────────────── */
-async function deleteStudent(id, name) {
-  if (!confirm(`Delete student "${name}"?\n\nThis will call DELETE on Student(${id}) in SAP.`)) return;
-  await fetchCsrfToken();
-  try {
-    const r = await fetch(`${BASE}/Student(${parseGuid(id)})`, {
-      method:'DELETE',
-      headers:{ 'X-CSRF-Token': csrfToken, 'Accept':'application/json' }
-    });
-    if (!r.ok && r.status!==204) throw new Error(`SAP ${r.status}`);
-    allStudents = allStudents.filter(s=>s.Id!==id);
-    document.getElementById('navCount').textContent=allStudents.length;
-    updateDashStats();
-    renderStudentTable(allStudents.filter(()=>true));
-    if (currentStudent?.Id===id) {
-      currentStudent=null;
-      document.getElementById('profileNavBtn').style.display='none';
-      document.getElementById('academicNavBtn').style.display='none';
-    }
-  } catch(e) {
-    alert(`Delete failed: ${e.message}`);
-  }
-}
-function deleteCurrentStudent() {
-  if (currentStudent) deleteStudent(currentStudent.Id, `${currentStudent.Firstname} ${currentStudent.Lastname}`);
-  nav('students');
-}
-
-/* ── Refresh all ─────────────────────────────────── */
-function refreshAll() {
-  allStudents = [];
-  loadStudents(true);
-  if (document.getElementById('page-dashboard').classList.contains('active')) {
-    document.getElementById('recentStudents').innerHTML='<div class="loading-box"><div class="spinner"></div></div>';
-  }
-}
-
-/* ── Helpers ─────────────────────────────────────── */
-function initials(fn,ln) { return ((fn?.[0]||'')+(ln?.[0]||'')).toUpperCase()||'?'; }
-const COLORS=['#0F6E56','#185FA5','#854F0B','#534AB7','#993C1D','#3B6D11','#633806','#A32D2D'];
-function avatarColor(name) { let h=0; for(const c of (name||'')) h=(h*31+c.charCodeAt(0))&0xffff; return COLORS[h%COLORS.length]; }
-function genderLabel(g) { return g==='M'?'Male':g==='F'?'Female':g||''; }
-function statusBadge(s) {
-  const v=(s||'').toLowerCase();
-  if (v.includes('admit')) return 'badge-success';
-  if (v.includes('activ')) return 'badge-info';
-  if (v.includes('inactiv')||v.includes('deset')) return 'badge-danger';
-  return 'badge-neutral';
-}
-function setText(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
-function clearEl(id) { const el=document.getElementById(id); if(el) el.innerHTML=''; }
-function showErr(id,msg) { const el=document.getElementById(id); if(el) el.innerHTML=`<div class="err-banner">⚠ ${msg} (showing offline demo data)</div>`; }
-function showFormErr(msg) { const el=document.getElementById('formError'); if(el) el.innerHTML=`<div class="alert alert-danger">${msg}</div>`; }
-function showFormSuccess(msg) { const el=document.getElementById('formSuccess'); if(el) el.innerHTML=`<div class="alert alert-success">✓ ${msg}</div>`; }
-function setContainer(id, type, msg='') {
-  const el=document.getElementById(id);
-  if (!el) return;
-  if (type==='loading') el.innerHTML=`<div class="loading-box"><div class="spinner"></div><div class="loading-txt">${msg}</div></div>`;
-  else if (type==='empty') el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">${msg}</div></div>`;
-}
-
-/* ── Boot ────────────────────────────────────────── */
-loadStudents();
+  });
+}, { threshold: 0.5 });
+const stripEl = document.querySelector('.about-strip');
+if (stripEl) counterObs.observe(stripEl);
 </script>
 </body>
 </html>
